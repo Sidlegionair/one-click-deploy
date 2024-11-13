@@ -11,9 +11,11 @@
     "sourceMap": false,
     "skipLibCheck": true,
     "outDir": "./dist",
+    "rootDir": "./src",  // Ensures TypeScript compiles from src directly into dist
     "baseUrl": "./",
-    "jsx": "react", // or "react-jsx" for TypeScript 4.1+
+    "jsx": "react"
   },
+
   "exclude": ["node_modules", "migration.ts"],
   "ts-node": {
     "files": true
