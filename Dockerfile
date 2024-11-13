@@ -21,7 +21,7 @@ RUN npm install
 COPY . .
 
 # Run the build commands
-RUN npm run build && npm run build:prod
+RUN npm run build:prod
 
 # Ensure that `dist/index.js` exists
 RUN test -f dist/index.js || echo "dist/index.js not found" && exit 1

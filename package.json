@@ -6,13 +6,13 @@
     "dev:server": "ts-node ./src/index.ts",
     "dev:worker": "ts-node ./src/index-worker.ts",
     "dev": "concurrently yarn:dev:*",
-    "build": "tsc && yarn copy",
+    "build": "tsc",
     "start:server": "node ./dist/index.js",
     "start:worker": "node ./dist/index-worker.js",
     "start": "concurrently yarn:start:*",
     "copy": "npx copyfiles -u 1 'admin-ui/dist/**/*' dist",
     "build:admin": "rimraf admin-ui && npx ts-node src/compile-admin-ui.ts",
-    "build:prod": "yarn build:admin && yarn build"
+    "build:prod": "yarn build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.554.0",
