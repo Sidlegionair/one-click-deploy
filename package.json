@@ -10,9 +10,9 @@
     "start:server": "node ./dist/index.js",
     "start:worker": "node ./dist/index-worker.js",
     "start": "concurrently yarn:start:*",
-    "copy": "npx copyfiles -u 1 'admin-ui/dist/**/*' dist",
-    "build:admin": "rimraf admin-ui && npx ts-node src/compile-admin-ui.ts",
-    "build:prod": "yarn build"
+    "copy": "npx copyfiles -u 2 'src/admin-ui/dist/**/*' dist/admin-ui",
+    "build:admin": "rimraf src/admin-ui && npx ts-node src/compile-admin-ui.ts",
+    "build:prod": "yarn build:admin && yarn build && yarn copy"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.554.0",

@@ -21,4 +21,4 @@ RUN npm install
 COPY . .
 
 # Run the build commands
-RUN npm run build:admin && npm run build:prod
+RUN npm run build:prod
