@@ -122,7 +122,7 @@ export const config: VendureConfig = {
             port: 3002,
             route: 'admin',
             app: {
-                path: path.join(__dirname, '../admin-ui/dist'), // Use precompiled Admin UI bundle
+                path: path.join(__dirname, '/admin-ui/dist'), // Use precompiled Admin UI bundle
             },
         }),
     ],
