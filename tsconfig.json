@@ -11,7 +11,8 @@
     "sourceMap": false,
     "skipLibCheck": true,
     "outDir": "./dist",
-    "baseUrl": "./"
+    "baseUrl": "./",
+    "jsx": "react", // or "react-jsx" for TypeScript 4.1+
   },
   "exclude": ["node_modules", "migration.ts"],
   "ts-node": {

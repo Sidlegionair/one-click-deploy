@@ -2,13 +2,15 @@ import {
     dummyPaymentHandler,
     DefaultJobQueuePlugin,
     DefaultSearchPlugin,
-    VendureConfig,
+    VendureConfig, bootstrap,
 } from '@vendure/core';
 import { defaultEmailHandlers, EmailPlugin } from '@vendure/email-plugin';
 import { AssetServerPlugin, configureS3AssetStorage } from '@vendure/asset-server-plugin';
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
 import 'dotenv/config';
 import path from 'path';
+import {MultivendorPlugin} from "./plugins/multivendor-plugin/multivendor.plugin";
+import { Connection } from 'typeorm';
 
 const IS_DEV = process.env.APP_ENV === 'dev';
 
@@ -36,6 +38,8 @@ export const config: VendureConfig = {
         superadminCredentials: {
             identifier: process.env.SUPERADMIN_USERNAME,
             password: process.env.SUPERADMIN_PASSWORD,
+            // emailAddress: 'superadmin@example.com', // Add a valid email here
+
         },
         cookieOptions: {
           secret: process.env.COOKIE_SECRET,
@@ -71,6 +75,10 @@ export const config: VendureConfig = {
         }]
     },
     plugins: [
+        MultivendorPlugin.init({
+            platformFeePercent: 10,
+            platformFeeSKU: 'FEE',
+        }),
         AssetServerPlugin.init({
             route: 'assets',
             assetUploadDir: process.env.ASSET_UPLOAD_DIR || path.join(__dirname, '../static/assets'),
@@ -111,8 +119,21 @@ export const config: VendureConfig = {
             },
         }),
         AdminUiPlugin.init({
-            route: 'admin',
             port: 3002,
+            route: 'admin',
+            app: {
+                path: path.join(__dirname, '../admin-ui/dist'), // Use precompiled Admin UI bundle
+            },
         }),
     ],
 };
+
+// bootstrap(config).then(async (app) => {
+//     const connection: Connection = app.get(Connection);
+//     await connection
+//         .getRepository('Administrator')
+//         .update({ identifier: process.env.SUPERADMIN_USERNAME }, { emailAddress: 'superadmin@example.com' });
+//     console.log('Superadmin email address set to superadmin@example.com');
+// }).catch(err => {
+//     console.error(err);
+// });

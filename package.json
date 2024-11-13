@@ -6,25 +6,36 @@
     "dev:server": "ts-node ./src/index.ts",
     "dev:worker": "ts-node ./src/index-worker.ts",
     "dev": "concurrently yarn:dev:*",
-    "build": "tsc",
+    "build": "tsc && yarn copy",
     "start:server": "node ./dist/index.js",
     "start:worker": "node ./dist/index-worker.js",
-    "start": "concurrently yarn:start:*"
+    "start": "concurrently yarn:start:*",
+    "copy": "npx copyfiles -u 1 'admin-ui/dist/**/*' dist",
+    "build:admin": "rimraf admin-ui && npx ts-node src/compile-admin-ui.ts",
+    "build:prod": "yarn build:admin && yarn build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.554.0",
     "@aws-sdk/lib-storage": "^3.554.0",
+    "@faker-js/faker": "^9.2.0",
+    "@mollie/api-client": "^4.1.0",
+    "@vendure/admin-ui": "^3.0.5",
     "@vendure/admin-ui-plugin": "^2.2.0",
     "@vendure/asset-server-plugin": "^2.2.0",
     "@vendure/cli": "^2.2.0",
     "@vendure/core": "^2.2.0",
     "@vendure/create": "^2.2.0",
     "@vendure/email-plugin": "^2.2.0",
+    "@vendure/ui-devkit": "^3.0.5",
+    "axios": "^1.7.7",
+    "copyfiles": "^2.4.1",
     "dotenv": "16.3.1",
     "pg": "8.11.5",
     "typescript": "5.3.3"
   },
   "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "concurrently": "8.2.2",
     "ts-node": "10.9.2"
   }
