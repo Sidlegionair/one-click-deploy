@@ -4,7 +4,7 @@ import * as path from 'path';
 import { MultivendorPlugin } from './plugins/multivendor-plugin/multivendor.plugin';
 
 compileUiExtensions({
-    outputPath: path.join(__dirname, '../admin-ui'),
+    outputPath: path.join(__dirname, '../src/admin-ui'),
     extensions: [
         MultivendorPlugin.ui,
     ],
