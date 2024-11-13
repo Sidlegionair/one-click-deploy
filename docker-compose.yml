@@ -9,17 +9,15 @@ services:
     command: ["yarn", "start:server"]
     volumes:
       - /usr/src/app
-    env_file:
-      - .env  # Loads environment variables from the .env file
     environment:
       DB_HOST: database
       DB_PORT: 5432
       DB_NAME: vendure
       DB_USERNAME: postgres
       DB_PASSWORD: password
-      MOLLIE_API_KEY: 1234
-      MOLLIE_CLIENT_ID: 1234
-      MOLLIE_CLIENT_SECRET: 1234
+      MOLLIE_API_KEY: test
+      MOLLIE_CLIENT_ID: test
+      MOLLIE_CLIENT_SECRET: test
   worker:
     build:
       context: .
@@ -27,18 +25,15 @@ services:
     command: ["yarn", "start:worker"]
     volumes:
       - /usr/src/app
-    env_file:
-      - .env  # Loads environment variables from the .env file
     environment:
       DB_HOST: database
       DB_PORT: 5432
       DB_NAME: vendure
       DB_USERNAME: postgres
       DB_PASSWORD: password
-      MOLLIE_API_KEY: 1234
-      MOLLIE_CLIENT_ID: 1234
-      MOLLIE_CLIENT_SECRET: 1234
-
+      MOLLIE_API_KEY: test
+      MOLLIE_CLIENT_ID: test
+      MOLLIE_CLIENT_SECRET: test
   database:
     image: postgres
     volumes:
