@@ -1,5 +1,7 @@
 FROM node:20
 
+ARG RAILWAY_ENVIRONMENT
+
 WORKDIR /usr/src/app
 
 COPY package.json ./
