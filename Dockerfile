@@ -22,9 +22,3 @@ COPY . .
 
 # Run the build commands
 RUN npm run build:prod
-
-# Ensure that `dist/index.js` exists
-RUN test -f dist/index.js || echo "dist/index.js not found" && exit 1
-
-# Set the command to run the app
-CMD ["node", "dist/index.js"]
