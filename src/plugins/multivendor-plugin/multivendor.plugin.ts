@@ -146,7 +146,7 @@ import { MollieController } from './controllers/mollie.controller';
     imports: [PluginCommonModule],
     controllers: [MollieController],  // Register the MollieController here
 
-    compatibility: '^2.2.0',
+    compatibility: '^3.0.0',
     configuration: config => {
         config.customFields.Customer.push({
             name: 'preferredSeller',
