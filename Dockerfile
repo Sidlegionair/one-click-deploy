@@ -15,7 +15,7 @@ WORKDIR /usr/src/app
 # Install dependencies
 COPY package.json ./
 COPY package-lock.json ./
-RUN npm install
+RUN yarn install
 
 # Copy the source files
 COPY . .
