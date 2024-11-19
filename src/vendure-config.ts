@@ -9,8 +9,8 @@ import { AssetServerPlugin, configureS3AssetStorage } from '@vendure/asset-serve
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
 import 'dotenv/config';
 import path from 'path';
-import { MultivendorPlugin } from "./plugins/multivendor-plugin/multivendor.plugin";
-import { ReviewsPlugin } from "./plugins/reviews/reviews-plugin";
+import {MultivendorPlugin} from "./plugins/multivendor-plugin/multivendor.plugin";
+import {ReviewsPlugin} from "./plugins/reviews/reviews-plugin";
 
 const IS_DEV = process.env.APP_ENV === 'dev';
 
@@ -19,6 +19,9 @@ export const config: VendureConfig = {
         port: +(process.env.PORT || 3000),
         adminApiPath: 'admin-api',
         shopApiPath: 'shop-api',
+        // The following options are useful in development mode,
+        // but are best turned off for production for security
+        // reasons.
         ...(IS_DEV ? {
             adminApiPlayground: {
                 settings: { 'request.credentials': 'include' } as any,
@@ -28,31 +31,24 @@ export const config: VendureConfig = {
                 settings: { 'request.credentials': 'include' } as any,
             },
             shopApiDebug: true,
-        } : {
-            adminApiPlayground: false,
-            shopApiPlayground: false,
-        }),
+        } : {}),
     },
     authOptions: {
         tokenMethod: ['bearer', 'cookie'],
         superadminCredentials: {
             identifier: process.env.SUPERADMIN_USERNAME,
             password: process.env.SUPERADMIN_PASSWORD,
+            // emailAddress: 'superadmin@example.com', // Add a valid email here
+
         },
         cookieOptions: {
-            name: { shop: 'shop-token', admin: 'admin-token' }, // Separate cookie names for shop/admin
             secret: process.env.COOKIE_SECRET,
-            sameSite: 'none',     // Allows cross-origin cookies with `platform.boardrush.com`
-            secure: true,      // Ensures cookies are sent over HTTPS in production
-            httpOnly: true,       // Prevents JavaScript access to cookies for added security
-            signed: true,         // Signs the cookie to prevent tampering
-            overwrite: true,      // Allow the cookie to be overwritten if necessary
-            maxAge: 60 * 60 * 24 * 7 * 1000, // 1 week in milliseconds
-            expires: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000), // Expiry date for the cookie
         },
     },
     dbConnectionOptions: {
         type: 'postgres',
+        // See the README.md "Migrations" section for an explanation of
+        // the `synchronize` and `migrations` options.
         synchronize: false,
         migrations: [path.join(__dirname, './migrations/*.+(ts|js)')],
         logging: false,
@@ -65,11 +61,13 @@ export const config: VendureConfig = {
         password: process.env.DB_PASSWORD,
         ssl: process.env.DB_CA_CERT ? {
             ca: process.env.DB_CA_CERT,
-        } : { rejectUnauthorized: false }, // Allow self-signed certs if needed
+        } : undefined,
     },
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
     },
+    // When adding or altering custom field definitions, the database will
+    // need to be updated. See the "Migrations" section in README.md.
     customFields: {
         Product: [{
             name: 'test',
@@ -85,7 +83,10 @@ export const config: VendureConfig = {
         AssetServerPlugin.init({
             route: 'assets',
             assetUploadDir: process.env.ASSET_UPLOAD_DIR || path.join(__dirname, '../static/assets'),
-            storageStrategyFactory: process.env.MINIO_ENDPOINT ? configureS3AssetStorage({
+            // If the MINIO_ENDPOINT environment variable is set, we'll use
+            // Minio as the asset storage provider. Otherwise, we'll use the
+            // default local provider.
+            storageStrategyFactory: process.env.MINIO_ENDPOINT ?  configureS3AssetStorage({
                 bucket: 'vendure-assets',
                 credentials: {
                     accessKeyId: process.env.MINIO_ACCESS_KEY,
@@ -95,6 +96,8 @@ export const config: VendureConfig = {
                     endpoint: process.env.MINIO_ENDPOINT,
                     forcePathStyle: true,
                     signatureVersion: 'v4',
+                    // The `region` is required by the AWS SDK even when using MinIO,
+                    // so we just use a dummy value here.
                     region: 'eu-west-1',
                 },
             }) : undefined,
@@ -108,23 +111,24 @@ export const config: VendureConfig = {
             handlers: defaultEmailHandlers,
             templatePath: path.join(__dirname, '../static/email/templates'),
             globalTemplateVars: {
-                fromAddress: '"Boardrush" <noreply@boardrush.com>',
-                verifyEmailAddressUrl: 'https://platform.boardrush.com/verify',
-                passwordResetUrl: 'https://platform.boardrush.com/password-reset',
-                changeEmailAddressUrl: 'https://platform.boardrush.com/verify-email-address-change'
+                // The following variables will change depending on your storefront implementation.
+                // Here we are assuming a storefront running at http://localhost:8080.
+                fromAddress: '"example" <noreply@example.com>',
+                verifyEmailAddressUrl: 'http://localhost:8080/verify',
+                passwordResetUrl: 'http://localhost:8080/password-reset',
+                changeEmailAddressUrl: 'http://localhost:8080/verify-email-address-change'
             },
         }),
         AdminUiPlugin.init({
             port: 3002,
             route: 'admin',
             app: {
-                path: path.join(__dirname, '/admin-ui/dist'),
+                path: path.join(__dirname, '/admin-ui/dist'), // Use precompiled Admin UI bundle
             },
         }),
     ],
 };
 
-// Optional: Uncomment to set the superadmin email address if needed
 // bootstrap(config).then(async (app) => {
 //     const connection: Connection = app.get(Connection);
 //     await connection
