@@ -29,13 +29,30 @@ export const config: VendureConfig = {
             origin: [
                 'https://localhost:3001', // Local development
                 'https://platform.boardrush.com', // Production frontend URL
-                'https://staging-backend.boardrush.com' // Staging backend URL
+                'https://staging-backend.boardrush.com', // Staging backend URL
             ],
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+            allowedHeaders: [
+                'Content-Type',
+                'Authorization',
+                'X-Requested-With',
+                'Accept',
+                'Origin',
+                'Access-Control-Request-Method',
+                'Access-Control-Request-Headers',
+                'vendure-token'
+            ],
+            exposedHeaders: [
+                'Content-Length',
+                'ETag',
+                'X-Powered-By',
+                'Authorization',
+                'Access-Control-Allow-Origin',
+                'Access-Control-Allow-Credentials'
+            ],
             credentials: true,
+            optionsSuccessStatus: 200,
             maxAge: 86400,
-            preflightContinue: true,
-            optionsSuccessStatus: 200
         },
     },
     authOptions: {
