@@ -46,7 +46,6 @@ export const config: VendureConfig = {
             domain: '.boardrush.com', // Allows cookies to be shared across subdomains
             sameSite: 'none',     // Allows cross-origin cookies with `platform.boardrush.com`
             secure: !IS_DEV,      // Ensures cookies are sent over HTTPS in production
-            secureProxy: true,    // Enable secure cookies even when behind a proxy
             httpOnly: true,       // Prevents JavaScript access to cookies for added security
             signed: true,         // Signs the cookie to prevent tampering
             overwrite: true,      // Allow the cookie to be overwritten if necessary
