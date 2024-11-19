@@ -42,8 +42,6 @@ export const config: VendureConfig = {
         cookieOptions: {
             name: { shop: 'shop-token', admin: 'admin-token' }, // Separate cookie names for shop/admin
             secret: process.env.COOKIE_SECRET,
-            path: '/',           // Path for which the cookie is valid
-            domain: '.boardrush.com', // Allows cookies to be shared across subdomains
             sameSite: 'none',     // Allows cross-origin cookies with `platform.boardrush.com`
             secure: true,      // Ensures cookies are sent over HTTPS in production
             httpOnly: true,       // Prevents JavaScript access to cookies for added security
