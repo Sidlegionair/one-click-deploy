@@ -56,15 +56,20 @@ export const config: VendureConfig = {
     },
     dbConnectionOptions: {
         type: 'postgres',
+        database: process.env.DB_NAME,
+        schema: process.env.DB_SCHEMA,
+        host: process.env.DB_HOST,
+        port: +process.env.DB_PORT,
+        username: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
+        url: process.env.DB_URL,
         synchronize: false,
         migrations: [path.join(__dirname, './migrations/*.+(ts|js)')],
         logging: false,
         url: process.env.DATABASE_URL,
-        ssl: process.env.DB_CA_CERT
-            ? {
-                ca: process.env.DB_CA_CERT,
-            }
-            : undefined,
+        ssl: process.env.DB_CA_CERT ? {
+            ca: process.env.DB_CA_CERT,
+        } : undefined,
     },
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
