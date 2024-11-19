@@ -45,7 +45,7 @@ export const config: VendureConfig = {
             path: '/',           // Path for which the cookie is valid
             domain: '.boardrush.com', // Allows cookies to be shared across subdomains
             sameSite: 'none',     // Allows cross-origin cookies with `platform.boardrush.com`
-            secure: !IS_DEV,      // Ensures cookies are sent over HTTPS in production
+            secure: true,      // Ensures cookies are sent over HTTPS in production
             httpOnly: true,       // Prevents JavaScript access to cookies for added security
             signed: true,         // Signs the cookie to prevent tampering
             overwrite: true,      // Allow the cookie to be overwritten if necessary
