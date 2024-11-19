@@ -28,7 +28,7 @@ export const config: VendureConfig = {
             }
             : {}),
         cors: {
-            origin: [process.env.FRONTEND_URL],
+            origin: process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [], // provide a fallback empty array
             credentials: true,
         },
     },
