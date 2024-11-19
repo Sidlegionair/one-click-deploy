@@ -66,7 +66,6 @@ export const config: VendureConfig = {
         synchronize: false,
         migrations: [path.join(__dirname, './migrations/*.+(ts|js)')],
         logging: false,
-        url: process.env.DATABASE_URL,
         ssl: process.env.DB_CA_CERT ? {
             ca: process.env.DB_CA_CERT,
         } : undefined,
