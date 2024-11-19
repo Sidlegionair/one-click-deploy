@@ -37,8 +37,12 @@ export const config: VendureConfig = {
             allowedHeaders: [
                 'Content-Type',
                 'Authorization',
+                'vendure-token',  // Custom Vendure header
                 'X-Requested-With',
-                'Accept'
+                'Accept',
+                'Origin',
+                'Referer',
+                'User-Agent'
             ], // Headers allowed in requests
             exposedHeaders: [
                 'Content-Length',
