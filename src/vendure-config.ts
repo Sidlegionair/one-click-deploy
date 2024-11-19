@@ -23,8 +23,6 @@ export const config: VendureConfig = {
             ? {
                 adminApiPlayground: { settings: { 'request.credentials': 'include' } },
                 adminApiDebug: true,
-                shopApiPlayground: { settings: { 'request.credentials': 'include' } },
-                shopApiDebug: true,
             }
             : {}),
         cors: {
@@ -34,20 +32,7 @@ export const config: VendureConfig = {
                 process.env.VENDURE_HOST || 'https://staging-backend.boardrush.com' // Staging backend URL
             ],
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow common HTTP methods
-            allowedHeaders: [
-                'Content-Type',
-                'Authorization',
-                'vendure-token',  // Custom Vendure header
-                'X-Requested-With',
-                'Accept',
-                'Origin',
-                'Referer',
-                'User-Agent'
-            ], // Headers allowed in requests
-            exposedHeaders: [
-                'Content-Length',
-                'X-Response-Time'
-            ], // Headers exposed to the browser
+
             credentials: true, // Allow credentials (cookies, authorization headers)
             maxAge: 86400, // Cache preflight response for 24 hours
             preflightContinue: false, // Don't pass preflight to next handler
