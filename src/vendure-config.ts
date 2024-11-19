@@ -29,10 +29,25 @@ export const config: VendureConfig = {
             : {}),
         cors: {
             origin: [
-                process.env.FRONTEND_URL || 'http://localhost:3001',
-                process.env.VENDURE_HOST || 'http://localhost:3000'
-            ].filter(Boolean), // filters out any undefined values
-            credentials: true,
+                'https://localhost:3001', // Local development
+                process.env.FRONTEND_URL || 'https://platform.boardrush.com', // Production frontend URL
+                process.env.VENDURE_HOST || 'https://staging-backend.boardrush.com' // Staging backend URL
+            ],
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow common HTTP methods
+            allowedHeaders: [
+                'Content-Type',
+                'Authorization',
+                'X-Requested-With',
+                'Accept'
+            ], // Headers allowed in requests
+            exposedHeaders: [
+                'Content-Length',
+                'X-Response-Time'
+            ], // Headers exposed to the browser
+            credentials: true, // Allow credentials (cookies, authorization headers)
+            maxAge: 86400, // Cache preflight response for 24 hours
+            preflightContinue: false, // Don't pass preflight to next handler
+            optionsSuccessStatus: 200 // Use 200 for successful OPTIONS requests
         },
     },
     authOptions: {
