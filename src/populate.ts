@@ -1,49 +1,84 @@
 import { populate } from '@vendure/core/cli';
 import { bootstrap, VendureConfig } from '@vendure/core';
-import { createConnection } from 'typeorm';
+import { DataSource } from 'typeorm';
 import path from 'path';
 
 /**
  * @description
- * This function is responsible for populating the DB with test data on the first run. It
- * first checks to see if the configured DB has any tables, and if not, runs the `populate()`
- * function using data from the @vendure/create package.
+ * Populates the DB with initial data if it hasn’t been populated before.
+ * Uses a migration table as a flag to ensure it only runs once.
  */
 export async function populateOnFirstRun(config: VendureConfig) {
-    const dbTablesAlreadyExist = await tablesExist(config);
-    if (!dbTablesAlreadyExist) {
-        console.log(`No Vendure tables found in DB. Populating database...`);
-        return populate(
-            () => bootstrap({
-                ...config,
-                importExportOptions: {
-                    importAssetsDir: path.join(
-                        require.resolve('@vendure/create/assets/products.csv'),
-                        '../images'
-                    ),
-                },
-                dbConnectionOptions: {...config.dbConnectionOptions, synchronize: true}
-            }),
-            require('@vendure/create/assets/initial-data.json'),
-            require.resolve('@vendure/create/assets/products.csv')
-        ).then(app => app.close())
-    } else {
-        return;
+    try {
+        const alreadyPopulated = await isAlreadyPopulated(config);
+        if (!alreadyPopulated) {
+            console.log(`No Vendure tables found in DB. Populating database...`);
+            await populate(
+                () => bootstrap({
+                    ...config,
+                    importExportOptions: {
+                        importAssetsDir: path.join(
+                            require.resolve('@vendure/create/assets/products.csv'),
+                            '../images'
+                        ),
+                    },
+                    dbConnectionOptions: {
+                        ...config.dbConnectionOptions,
+                        synchronize: true, // Ensures tables are created if missing
+                    },
+                }),
+                require('@vendure/create/assets/initial-data.json'),
+                require.resolve('@vendure/create/assets/products.csv')
+            ).then(app => app.close());
+
+            // Mark as populated
+            await markAsPopulated(config);
+        } else {
+            console.log(`Vendure tables already exist. Skipping population.`);
+        }
+    } catch (error) {
+        console.error(`Failed to populate database on first run:`, error);
+        throw error;
     }
 }
 
-async function tablesExist(config: VendureConfig) {
-    const connection = await createConnection(config.dbConnectionOptions);
-    const result = await connection.query(`
-        select n.nspname as table_schema,
-               c.relname as table_name,
-               c.reltuples as rows
-        from pg_class c
-        join pg_namespace n on n.oid = c.relnamespace
-        where c.relkind = 'r'
-              and n.nspname = '${process.env.DB_SCHEMA}'
-        order by c.reltuples desc;`
-    );
-    await connection.close();
-    return 0 < result.length;
+async function isAlreadyPopulated(config: VendureConfig) {
+    const dataSource = new DataSource({
+        ...config.dbConnectionOptions,
+        entities: [],
+        synchronize: false,
+    });
+    await dataSource.initialize();
+    try {
+        // Check for vendure_migrations table and the 'initial-seed' entry
+        await dataSource.query(`
+            CREATE TABLE IF NOT EXISTS vendure_migrations (
+                id SERIAL PRIMARY KEY,
+                migration_name VARCHAR(255) UNIQUE NOT NULL
+            );
+        `);
+        const result = await dataSource.query(`
+            SELECT * FROM vendure_migrations WHERE migration_name = 'initial-seed';
+        `);
+        return result.length > 0;
+    } finally {
+        await dataSource.destroy();
+    }
+}
+
+async function markAsPopulated(config: VendureConfig) {
+    const dataSource = new DataSource({
+        ...config.dbConnectionOptions,
+        entities: [],
+        synchronize: false,
+    });
+    await dataSource.initialize();
+    try {
+        await dataSource.query(`
+            INSERT INTO vendure_migrations (migration_name) VALUES ('initial-seed')
+            ON CONFLICT (migration_name) DO NOTHING;
+        `);
+    } finally {
+        await dataSource.destroy();
+    }
 }
