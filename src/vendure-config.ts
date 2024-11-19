@@ -31,6 +31,22 @@ export const config: VendureConfig = {
                 process.env.FRONTEND_URL || 'https://platform.boardrush.com', // Production frontend URL
                 process.env.VENDURE_HOST || 'https://staging-backend.boardrush.com' // Staging backend URL
             ],
+            allowedHeaders: [
+                'Content-Type',
+                'Authorization',
+                'vendure-token',  // Custom Vendure header
+                'X-Requested-With',
+                'Accept',
+                'Origin',
+                'Referer',
+                'User-Agent'
+            ],
+            exposedHeaders: [
+                'Content-Length',
+                'X-Response-Time',
+                'Access-Control-Allow-Origin'
+            ], // Headers exposed to the browser
+
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow common HTTP methods
             credentials: true, // Allow credentials (cookies, authorization headers)
             maxAge: 86400, // Cache preflight response for 24 hours
