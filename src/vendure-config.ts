@@ -19,15 +19,6 @@ export const config: VendureConfig = {
         port: +(process.env.PORT || 3000),
         adminApiPath: 'admin-api',
         shopApiPath: 'shop-api',
-        middleware: [
-            {
-                handler: (req, res, next) => {
-                    req.app.set('trust proxy', 1); // or true for all proxies
-                    next();
-                },
-                route: '/',
-            },
-        ],
         ...(IS_DEV
             ? {
                 adminApiPlayground: { settings: { 'request.credentials': 'include' } },
