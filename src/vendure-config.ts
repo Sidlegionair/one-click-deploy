@@ -28,7 +28,10 @@ export const config: VendureConfig = {
             }
             : {}),
         cors: {
-            origin: process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [], // provide a fallback empty array
+            origin: [
+                process.env.FRONTEND_URL || 'http://localhost:3001',
+                process.env.VENDURE_HOST || 'http://localhost:3000'
+            ].filter(Boolean), // filters out any undefined values
             credentials: true,
         },
     },
