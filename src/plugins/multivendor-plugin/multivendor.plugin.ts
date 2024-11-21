@@ -168,31 +168,51 @@ import { MollieController } from './controllers/mollie.controller';
             },
         });
 
+        const MAX_TABS = 3;
+
+        for (let i = 1; i <= MAX_TABS; i++) {
+            config.customFields.Product.push(
+                {
+                    name: `tab${i}Label`,
+                    type: 'string',
+                    label: [{ languageCode: LanguageCode.en, value: `Tab ${i} Label` }],
+                    nullable: true,
+                    public: true,
+                    ui: {
+                        tab: 'Description Tabs',
+                        layout: 'horizontal', // Align this field with the visibility toggle
+                    },
+                },
+                {
+                    name: `tab${i}Visible`,
+                    type: 'boolean',
+                    label: [{ languageCode: LanguageCode.en, value: `Show Tab ${i} on Frontend` }],
+                    nullable: false,
+                    public: true,
+                    defaultValue: false,
+                    ui: {
+                        tab: 'Description Tabs',
+                        layout: 'horizontal', // Align this field horizontally with others
+                    },
+                },
+                {
+                    name: `tab${i}Content`,
+                    type: 'text',
+                    label: [{ languageCode: LanguageCode.en, value: `Tab ${i} Content` }],
+                    nullable: true,
+                    public: true,
+                    ui: {
+                        component: 'rich-text-form-input',
+                        tab: 'Description Tabs',
+                        layout: 'vertical', // Keep this field full-width and below the others
+                    },
+                }
+            );
+        }
 
 
 
         config.customFields.Product.push(
-            {
-                name: 'infoTabs',
-                type: 'text',
-                label: [{ languageCode: LanguageCode.en, value: 'Information Tabs' }],
-                description: [{ languageCode: LanguageCode.en, value: 'Custom tabs for additional product info' }],
-                nullable: true,
-                list: true, // This makes it a repeater field
-                public: true, // Make it available in the storefront API if needed
-                ui: {
-                    ui: { component: 'rich-text-form-input' }, // Enables WYSIWYG editor in Admin UI
-                },
-            },
-            {
-                name: 'shortDescription',
-                type: 'text',
-                label: [{ languageCode: LanguageCode.en, value: 'Short Description' }],
-                description: [{ languageCode: LanguageCode.en, value: 'A short description with WYSIWYG support' }],
-                nullable: true, // Set to false if you want it to be required
-                public: true,    // Make it accessible via the API
-                ui: { component: 'rich-text-form-input' }, // Enables WYSIWYG editor in Admin UI
-            },
             {
                 name: 'featured',
                 type: 'boolean',
