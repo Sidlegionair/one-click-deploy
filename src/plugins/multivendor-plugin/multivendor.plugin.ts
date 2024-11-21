@@ -175,8 +175,8 @@ import { MollieController } from './controllers/mollie.controller';
             {
                 name: 'infoTabs',
                 type: 'text',
-                label: [{ languageCode: 'en', value: 'Information Tabs' }],
-                description: [{ languageCode: 'en', value: 'Custom tabs for additional product info' }],
+                label: [{ languageCode: LanguageCode.en, value: 'Information Tabs' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Custom tabs for additional product info' }],
                 nullable: true,
                 list: true, // This makes it a repeater field
                 public: true, // Make it available in the storefront API if needed
