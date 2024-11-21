@@ -170,8 +170,23 @@ import { MollieController } from './controllers/mollie.controller';
 
         const MAX_TABS = 3;
 
-        for (let i = 1; i <= MAX_TABS; i++) {
-            config.customFields.Product.push(
+        config.customFields.ProductVariant.push(
+            {
+                name: `description`,
+                type: 'text',
+                label: [{ languageCode: LanguageCode.en, value: `Product description` }],
+                nullable: true,
+                public: true,
+                ui: {
+                    component: 'rich-text-form-input',
+                    tab: 'General',
+                    layout: 'vertical', // Keep this field full-width and below the others
+                },
+            }
+        );
+
+                for (let i = 1; i <= MAX_TABS; i++) {
+            config.customFields.ProductVariant.push(
                 {
                     name: `tab${i}Label`,
                     type: 'string',
