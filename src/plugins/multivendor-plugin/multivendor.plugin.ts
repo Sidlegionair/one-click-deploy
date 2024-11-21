@@ -174,7 +174,7 @@ import { MollieController } from './controllers/mollie.controller';
         config.customFields.Product.push(
             {
                 name: 'infoTabs',
-                type: 'json',
+                type: 'text',
                 label: [{ languageCode: 'en', value: 'Information Tabs' }],
                 description: [{ languageCode: 'en', value: 'Custom tabs for additional product info' }],
                 nullable: true,
