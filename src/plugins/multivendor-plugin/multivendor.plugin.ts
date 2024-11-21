@@ -173,6 +173,27 @@ import { MollieController } from './controllers/mollie.controller';
 
         config.customFields.Product.push(
             {
+                name: 'infoTabs',
+                type: 'json',
+                label: [{ languageCode: 'en', value: 'Information Tabs' }],
+                description: [{ languageCode: 'en', value: 'Custom tabs for additional product info' }],
+                nullable: true,
+                list: true, // This makes it a repeater field
+                public: true, // Make it available in the storefront API if needed
+                ui: {
+                    ui: { component: 'rich-text-form-input' }, // Enables WYSIWYG editor in Admin UI
+                },
+            },
+            {
+                name: 'shortDescription',
+                type: 'text',
+                label: [{ languageCode: LanguageCode.en, value: 'Short Description' }],
+                description: [{ languageCode: LanguageCode.en, value: 'A short description with WYSIWYG support' }],
+                nullable: true, // Set to false if you want it to be required
+                public: true,    // Make it accessible via the API
+                ui: { component: 'rich-text-form-input' }, // Enables WYSIWYG editor in Admin UI
+            },
+            {
                 name: 'featured',
                 type: 'boolean',
                 label: [{ languageCode: LanguageCode.en, value: 'Featured' }],

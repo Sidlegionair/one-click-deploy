@@ -2,7 +2,7 @@ import {
     dummyPaymentHandler,
     DefaultJobQueuePlugin,
     DefaultSearchPlugin,
-    VendureConfig, bootstrap,
+    VendureConfig, bootstrap, StockDisplayStrategy, RequestContext, ProductVariant,
 } from '@vendure/core';
 import { defaultEmailHandlers, EmailPlugin } from '@vendure/email-plugin';
 import { AssetServerPlugin, configureS3AssetStorage } from '@vendure/asset-server-plugin';
@@ -14,7 +14,22 @@ import { ReviewsPlugin } from "./plugins/reviews/reviews-plugin";
 
 const IS_DEV = process.env.APP_ENV === 'dev';
 
+
+export class ExactStockDisplayStrategy implements StockDisplayStrategy {
+    getStockLevel(
+        ctx: RequestContext,
+        productVariant: ProductVariant,
+        saleableStockLevel: number
+    ): string {
+        return saleableStockLevel.toString();
+    }
+}
+
 export const config: VendureConfig = {
+    catalogOptions: {
+        stockDisplayStrategy: new ExactStockDisplayStrategy(),
+
+    },
     apiOptions: {
         port: +(process.env.PORT || 3000),
         adminApiPath: 'admin-api',
@@ -56,7 +71,7 @@ export const config: VendureConfig = {
         username: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
         url: process.env.DB_URL,
-        synchronize: false,
+        synchronize: true,
         migrations: [path.join(__dirname, './migrations/*.+(ts|js)')],
         logging: false,
         ssl: process.env.DB_CA_CERT ? {
@@ -66,9 +81,9 @@ export const config: VendureConfig = {
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
     },
-    customFields: {
-        Product: [{ name: 'test', type: 'string' }],
-    },
+    // customFields: {
+    //     Product: [{ name: 'test', type: 'string' }],
+    // },
     plugins: [
         ReviewsPlugin,
         MultivendorPlugin.init({
@@ -116,3 +131,5 @@ export const config: VendureConfig = {
         }),
     ],
 };
+
+
