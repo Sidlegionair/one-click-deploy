@@ -48,18 +48,7 @@ export const config: VendureConfig = {
             password: process.env.SUPERADMIN_PASSWORD,
         },
         cookieOptions: {
-            name: {
-                shop: 'shop_session',
-                admin: 'admin_session',
-            },
             secret: process.env.COOKIE_SECRET,
-            path: '/',
-            sameSite: !IS_DEV ? 'none' : 'lax',
-            secure: !IS_DEV,
-            secureProxy: !IS_DEV,
-            httpOnly: true,
-            signed: true,
-            overwrite: true,
         },
     },
     dbConnectionOptions: {
