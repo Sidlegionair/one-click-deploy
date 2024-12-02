@@ -168,29 +168,18 @@ import { MollieController } from './controllers/mollie.controller';
             },
         });
 
-        const MAX_TABS = 3;
 
-        config.customFields.ProductVariant.push(
-            {
-                name: `description`,
-                type: 'text',
-                label: [{ languageCode: LanguageCode.en, value: `Product description` }],
-                nullable: true,
-                public: true,
-                ui: {
-                    component: 'rich-text-form-input',
-                    tab: 'General',
-                    layout: 'vertical', // Keep this field full-width and below the others
-                },
-            }
-        );
+        const MAX_DESCRIPTION_TABS = 3;
+        const MAX_PRODUCT_OPTION_TABS = 3;
+        const MAX_PRODUCT_OPTION_BARS = 3;
 
-                for (let i = 1; i <= MAX_TABS; i++) {
+// Add description tabs to ProductVariant
+        for (let i = 1; i <= MAX_DESCRIPTION_TABS; i++) {
             config.customFields.ProductVariant.push(
                 {
-                    name: `tab${i}Label`,
+                    name: `descriptionTab${i}Label`,
                     type: 'string',
-                    label: [{ languageCode: LanguageCode.en, value: `Tab ${i} Label` }],
+                    label: [{ languageCode: LanguageCode.en, value: `Description Tab ${i} Label` }],
                     nullable: true,
                     public: true,
                     ui: {
@@ -199,9 +188,9 @@ import { MollieController } from './controllers/mollie.controller';
                     },
                 },
                 {
-                    name: `tab${i}Visible`,
+                    name: `descriptionTab${i}Visible`,
                     type: 'boolean',
-                    label: [{ languageCode: LanguageCode.en, value: `Show Tab ${i} on Frontend` }],
+                    label: [{ languageCode: LanguageCode.en, value: `Show Description Tab ${i} on Frontend` }],
                     nullable: false,
                     public: true,
                     defaultValue: false,
@@ -211,9 +200,9 @@ import { MollieController } from './controllers/mollie.controller';
                     },
                 },
                 {
-                    name: `tab${i}Content`,
+                    name: `descriptionTab${i}Content`,
                     type: 'text',
-                    label: [{ languageCode: LanguageCode.en, value: `Tab ${i} Content` }],
+                    label: [{ languageCode: LanguageCode.en, value: `Description Tab ${i} Content` }],
                     nullable: true,
                     public: true,
                     ui: {
@@ -225,7 +214,120 @@ import { MollieController } from './controllers/mollie.controller';
             );
         }
 
+// Add product options tabs to ProductVariant
+        for (let i = 1; i <= MAX_PRODUCT_OPTION_TABS; i++) {
+            config.customFields.ProductVariant.push(
+                // Add the main label and visibility toggle for each option tab
+                {
+                    name: `optionTab${i}Label`,
+                    type: 'string',
+                    label: [{ languageCode: LanguageCode.en, value: `Option Tab ${i} Label` }],
+                    nullable: true,
+                    public: true,
+                    ui: {
+                        tab: `Product Options Tab ${i}`, // Separate tab for each options tab
+                        layout: 'horizontal',
+                    },
+                },
+                {
+                    name: `optionTab${i}Visible`,
+                    type: 'boolean',
+                    label: [{ languageCode: LanguageCode.en, value: `Show Option Tab ${i} on Frontend` }],
+                    nullable: false,
+                    public: true,
+                    defaultValue: false,
+                    ui: {
+                        tab: `Product Options Tab ${i}`, // Separate tab for each options tab
+                        layout: 'horizontal',
+                    },
+                }
+            );
 
+            // Add up to MAX_PRODUCT_OPTION_BARS bars (scales) for each option tab
+            for (let j = 1; j <= MAX_PRODUCT_OPTION_BARS; j++) {
+                config.customFields.ProductVariant.push(
+                    {
+                        name: `optionTab${i}Bar${j}Name`,
+                        type: 'string',
+                        label: [{ languageCode: LanguageCode.en, value: `Bar ${j} Name` }],
+                        nullable: true,
+                        public: true,
+                        ui: {
+                            tab: `Product Options Tab ${i}`, // Separate tab for each options tab
+                            layout: 'horizontal',
+                        },
+                    },
+                    {
+                        name: `optionTab${i}Bar${j}Visible`,
+                        type: 'boolean',
+                        label: [{ languageCode: LanguageCode.en, value: `Bar ${j} on Frontend` }],
+                        nullable: false,
+                        public: true,
+                        defaultValue: false,
+                        ui: {
+                            tab: `Product Options Tab ${i}`, // Separate tab for each options tab
+                            layout: 'horizontal',
+                        },
+                    },
+                    {
+                        name: `optionTab${i}Bar${j}Min`,
+                        type: 'float',
+                        label: [{ languageCode: LanguageCode.en, value: `Bar ${j} Min Value` }],
+                        nullable: true,
+                        public: true,
+                        ui: {
+                            tab: `Product Options Tab ${i}`, // Separate tab for each options tab
+                            layout: 'horizontal',
+                        },
+                    },
+                    {
+                        name: `optionTab${i}Bar${j}Max`,
+                        type: 'float',
+                        label: [{ languageCode: LanguageCode.en, value: `Bar ${j} Max Value` }],
+                        nullable: true,
+                        public: true,
+                        ui: {
+                            tab: `Product Options Tab ${i}`, // Separate tab for each options tab
+                            layout: 'horizontal',
+                        },
+                    },
+                    {
+                        name: `optionTab${i}Bar${j}MinLabel`,
+                        type: 'string',
+                        label: [{ languageCode: LanguageCode.en, value: `Bar ${j} Min Label` }],
+                        nullable: true,
+                        public: true,
+                        ui: {
+                            tab: `Product Options Tab ${i}`, // Separate tab for each options tab
+                            layout: 'horizontal',
+                        },
+                    },
+                    {
+                        name: `optionTab${i}Bar${j}MaxLabel`,
+                        type: 'string',
+                        label: [{ languageCode: LanguageCode.en, value: `Bar ${j} Max Label` }],
+                        nullable: true,
+                        public: true,
+                        ui: {
+                            tab: `Product Options Tab ${i}`, // Separate tab for each options tab
+                            layout: 'horizontal',
+                        },
+                    },
+                    {
+                        name: `optionTab${i}Bar${j}Rating`,
+                        type: 'float',
+                        label: [{ languageCode: LanguageCode.en, value: `Bar ${j} Rating` }],
+                        nullable: true,
+                        public: true,
+                        ui: {
+                            component: 'range-slider-form-input', // Example: Use a slider UI for rating
+                            tab: `Product Options Tab ${i}`, // Separate tab for each options tab
+                            layout: 'horizontal',
+                        },
+                    }
+                );
+            }
+        }
 
         config.customFields.Product.push(
             {

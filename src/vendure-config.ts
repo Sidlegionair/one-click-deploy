@@ -81,9 +81,6 @@ export const config: VendureConfig = {
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
     },
-    // customFields: {
-    //     Product: [{ name: 'test', type: 'string' }],
-    // },
     plugins: [
         ReviewsPlugin,
         MultivendorPlugin.init({
