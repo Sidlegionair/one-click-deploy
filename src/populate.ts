@@ -18,7 +18,7 @@ export async function populateOnFirstRun(config: VendureConfig) {
                     ...config,
                     importExportOptions: {
                         importAssetsDir: path.join(
-                            require.resolve('./../seed/products.csv'),
+                            require.resolve('./../seed/products_test.csv'),
                             '../images'
                         ),
                     },
@@ -28,7 +28,7 @@ export async function populateOnFirstRun(config: VendureConfig) {
                     },
                 }),
                 require('@vendure/create/assets/initial-data.json'),
-                require.resolve('./../seed/products.csv')
+                require.resolve('./../seed/products_test.csv')
             ).then(app => app.close());
 
             // Mark as populated
