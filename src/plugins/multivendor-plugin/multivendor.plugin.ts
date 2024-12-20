@@ -216,6 +216,21 @@ import { MollieController } from './controllers/mollie.controller';
 
         config.customFields.ProductVariant.push(
             {
+                name: 'shortdescription',
+                type: 'text',
+                label: [{ languageCode: LanguageCode.en, value: `Variation short description` }],
+                nullable: true,
+                public: true,
+                ui: {
+                    component: 'rich-text-form-input',
+                    tab: 'Short description',
+                    layout: 'vertical', // Keep this field full-width and below the others
+                },
+            }
+        );
+
+            config.customFields.ProductVariant.push(
+            {
                 name: 'frontPhoto',
                 type: 'relation', // Create a relation to the Asset entity
                 entity: Asset,
