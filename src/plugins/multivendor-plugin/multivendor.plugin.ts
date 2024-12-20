@@ -20,7 +20,7 @@ import {
     AdministratorService,
     RoleService,
     ShippingMethodService,
-    StockLocationService, Permission, StockLocation, SellerEvent, CustomSellerFields, ID, Customer, Seller,
+    StockLocationService, Permission, StockLocation, SellerEvent, CustomSellerFields, ID, Customer, Seller, Asset,
 } from '@vendure/core';
 
 import { AdminUiExtension } from '@vendure/ui-devkit/compiler';
@@ -171,7 +171,7 @@ import { MollieController } from './controllers/mollie.controller';
 
         const MAX_DESCRIPTION_TABS = 3;
         const MAX_PRODUCT_OPTION_TABS = 3;
-        const MAX_PRODUCT_OPTION_BARS = 3;
+        const MAX_PRODUCT_OPTION_BARS = 4;
 
 // Add description tabs to ProductVariant
         for (let i = 1; i <= MAX_DESCRIPTION_TABS; i++) {
@@ -213,6 +213,38 @@ import { MollieController } from './controllers/mollie.controller';
                 }
             );
         }
+
+        config.customFields.ProductVariant.push(
+            {
+                name: 'frontPhoto',
+                type: 'relation', // Create a relation to the Asset entity
+                entity: Asset,
+                label: [{ languageCode: LanguageCode.en, value: 'Front Photo' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Photo of the front side of the board' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    component: 'asset-picker-form-input', // Use the built-in asset picker
+                    tab: 'Board Photos',
+                    layout: 'vertical',
+                },
+            },
+            {
+                name: 'backPhoto',
+                type: 'relation', // Create a relation to the Asset entity
+                entity: Asset,
+                label: [{ languageCode: LanguageCode.en, value: 'Back Photo' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Photo of the back side of the board' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    component: 'asset-picker-form-input', // Use the built-in asset picker
+                    tab: 'Board Photos',
+                    layout: 'vertical',
+                },
+            }
+        );
+
 
 // Add product options tabs to ProductVariant
         for (let i = 1; i <= MAX_PRODUCT_OPTION_TABS; i++) {
