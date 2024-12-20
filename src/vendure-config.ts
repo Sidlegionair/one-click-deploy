@@ -94,7 +94,8 @@ export const config: VendureConfig = {
             }) : undefined,
         }),
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
-        DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
+        DefaultSearchPlugin.init(
+            { bufferUpdates: false, indexStockStatus: true }),
         EmailPlugin.init({
             devMode: true,
             outputPath: path.join(__dirname, '../static/email/test-emails'),

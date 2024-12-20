@@ -76,8 +76,8 @@ for column in columns_to_quote:
 for column in numeric_columns:
     if column in products_csv.columns:
         products_csv[column] = products_csv[column].apply(
-            lambda x: float(str(x).replace(',', '.').replace('"', '')) 
-            if pd.notna(x) and str(x).replace(',', '.').replace('"', '').replace('.', '').isdigit() 
+            lambda x: float(str(x).replace(',', '.').replace('"', ''))
+            if pd.notna(x) and str(x).replace(',', '.').replace('"', '').replace('.', '').isdigit()
             else x
         )
         products_csv[column] = products_csv[column].astype('float64')

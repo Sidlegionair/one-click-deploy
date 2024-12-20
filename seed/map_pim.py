@@ -1,6 +1,15 @@
 import pandas as pd
 import re
 
+allowed_tags = [
+    '<b>', '</b>', '<i>', '</i>', '<strong>', '</strong>',
+    '<em>', '</em>', '<br>', '</br>', '<ul>', '</ul>', '<li>', '</li>',
+    '<p>', '</p>', '<a>', '</a>', '<span>', '</span>',
+    '<h1>', '</h1>', '<h2>', '</h2>', '<h3>', '</h3>',
+    '<div>', '</div>', '<img>', '<hr>'
+]
+cleanr = re.compile(r'<(?!/?(?:' + '|'.join(tag[1:-1] for tag in allowed_tags) + r')\b)[^>]*>')
+
 def clean_html(raw_html):
     """
     Remove unnecessary HTML tags while preserving essential ones.
@@ -9,70 +18,37 @@ def clean_html(raw_html):
     Returns:
         str: Partially cleaned string.
     """
-    if pd.isna(raw_html):  # Handle NaN values
+    if pd.isna(raw_html):
         return ''
-    # Keep essential tags and remove the rest
-    allowed_tags = [
-        '<b>', '</b>', '<i>', '</i>', '<strong>', '</strong>',
-        '<em>', '</em>', '<br>', '<ul>', '</ul>', '<li>', '</li>',
-        '<p>', '</p>', '<a>', '</a>', '<span>', '</span>',
-        '<h1>', '</h1>', '<h2>', '</h2>', '<h3>', '</h3>',
-        '<div>', '</div>', '<img>', '<hr>'
-    ]
-    cleanr = re.compile(r'<(?!/?(?:' + '|'.join(tag[1:-1] for tag in allowed_tags) + r')\b)[^>]*>')
     return re.sub(cleanr, '', str(raw_html))
 
 def parse_rating(value):
     """
     Parse a rating value, converting decimals to percentages if needed.
-    Args:
-        value (str or float): The input rating value as a string or float.
-    Returns:
-        float: The parsed float value or NaN if invalid.
     """
     try:
-        # Debug: Log the raw value
-        print(f"Raw value to parse: {value}")
-
-        # Handle None or empty string
-        if not value:
-            print("Value is None or empty.")
-            return float('nan')
-
-        # If the value is a float or a string representing a decimal
-        if isinstance(value, (float, int)):
-            parsed_value = value * 100 if value <= 1 else value
-        else:
-            # Handle string with % or numeric string
-            value = str(value).replace('%', '').strip()
-            parsed_value = float(value) * 100 if float(value) <= 1 else float(value)
-
-        # Debug: Log the parsed value
-        print(f"Parsed value: {parsed_value}")
-        return parsed_value
-    except (ValueError, TypeError) as e:
-        # Debug: Log the error
-        print(f"Error parsing rating: {value} - {e}")
-        return float('nan')
-
+        if pd.isna(value) or value == '':
+            return ''
+        value_str = str(value).replace('%', '').strip()
+        val = float(value_str)
+        if val <= 1:
+            val = val * 100
+        return val
+    except:
+        return ''
 
 def process_facets(row, facet_columns):
     """
     Process and merge facets, ensuring proper formatting and excluding invalid values.
-    Args:
-        row (pd.Series): The current row of the DataFrame.
-        facet_columns (list): List of column names for facets in the source data.
-    Returns:
-        str: Processed and formatted facets.
     """
     facets = []
     for col in facet_columns:
         raw_facet = row.get(col, '')
-        if pd.isna(raw_facet):  # Handle NaN
+        if pd.isna(raw_facet):
             continue
         raw_facet = str(raw_facet).strip()
-        if raw_facet.lower() != 'nan':
-            parts = [facet.strip() for facet in raw_facet.split(',')]
+        if raw_facet.lower() != 'nan' and raw_facet != '':
+            parts = [p.strip() for p in raw_facet.split(',')]
             for facet in parts:
                 if ':' in facet:
                     key, values = facet.split(':', 1)
@@ -82,141 +58,277 @@ def process_facets(row, facet_columns):
                     facets.append(f"unknown:{facet}")
     return '|'.join(facets)
 
+def process_row(row, facet_columns):
+    # Clean and use HTML from product:shortdescription HTML and product:longdescription HTML
+    product_short_desc = clean_html(row.get('product:shortdescription HTML', ''))
+    product_long_desc = clean_html(row.get('product:longdescription HTML', ''))
+    brand = str(row.get('product:Brand', ''))
+    price = row.get('price', 0)
+    if pd.isna(price):
+        price = 0
+    taxCategory = row.get('taxCategory', 'standard')
+    if pd.isna(taxCategory):
+        taxCategory = 'standard'
+    stockOnHand = row.get('stockOnHand', 100)
+    if pd.isna(stockOnHand):
+        stockOnHand = 100
+    facets = process_facets(row, facet_columns)
+
+    # Ratings
+    diff_rider_rating = parse_rating(row.get('product:Difficulty riderlevel rating ', ''))
+    diff_flex_rating = parse_rating(row.get('product:Difficulty flex rating ', ''))
+    powder_rating = parse_rating(row.get('Product:POWDER terrainlevel rating ', ''))
+    all_mountain_rating = parse_rating(row.get('Product:ALL MOUNTAIN terrainlevel rating ', ''))
+    resort_rating = parse_rating(row.get('product:RESORT terrainlevel rating ', ''))
+    park_rating = parse_rating(row.get('Product:PARK terrainlevel rating ', ''))
+
+    base = {
+        'name': str(row.get('name', '')) if str(row.get('name', '')).lower() != 'nan' else '',
+        'slug': str(row.get('slug', '')) if str(row.get('slug', '')).lower() != 'nan' else '',
+        # Initially set description to this row's product_short_desc.
+        # We'll later adjust based on line type (product line or variant line)
+        'description': product_short_desc,
+        'variation:shortdescription': '',
+        'assets': 'Dupraz/Dupraz D1-5-5-165/Dupraz-snowboards-D1-5-5-P.png|Dupraz/Dupraz D1-5-5-165/Dupraz-snowboards-D1-5-5-PP.png|Dupraz/Dupraz D1-5-5-165/Dupraz-snowboards-D1-5-5-PP-TOP-125x735.png|Dupraz/Dupraz D1-5-5-165/Dupraz-snowboards-D1-5-5-profile-side.png|Dupraz/Dupraz D1-5-5-165/Dupraz-snowboards-D1-5-5-profile-top.png|Dupraz/Dupraz D1-5-5-165/Dupraz-snowboards-D1-5-5-P-TOP-125x735.png|Dupraz/Dupraz D1-5-5-165/Dupraz-snowboards-D1-5-5-STD.png|Dupraz/Dupraz D1-5-5-165/Dupraz-snowboards-D1-5-5-STD-TOP-125x735.png|Dupraz/Dupraz D1-5-5-165/Dupraz-snowboards-D1-X5-130x735.png',
+        'facets': facets,
+        'optionGroups': '',
+        'optionValues': '',
+        'sku': '',
+        'price': price,
+        'taxCategory': taxCategory,
+        'stockOnHand': stockOnHand,
+        'trackInventory': True,
+        'variantAssets': '',
+        'variantFacets': '',
+        'variant:descriptionTab1Label': 'Long Description',
+        'variant:descriptionTab1Visible': True,
+        'variant:descriptionTab1Content': product_long_desc,
+        'product:brand': brand,
+
+        # Tab 1 (Character)
+        'variant:optionTab1Label': 'Character',
+        'variant:optionTab1Visible': True,
+        'variant:optionTab1Bar1Name': 'Difficulty rider level rating',
+        'variant:optionTab1Bar1Visible': True,
+        'variant:optionTab1Bar1Min': '10',
+        'variant:optionTab1Bar1Max': '100',
+        'variant:optionTab1Bar1MinLabel': '10%',
+        'variant:optionTab1Bar1MaxLabel': '100%',
+        'variant:optionTab1Bar1Rating': diff_rider_rating,
+
+        'variant:optionTab1Bar2Name': 'Difficulty flex rating',
+        'variant:optionTab1Bar2Visible': True,
+        'variant:optionTab1Bar2Min': '10',
+        'variant:optionTab1Bar2Max': '100',
+        'variant:optionTab1Bar2MinLabel': '10%',
+        'variant:optionTab1Bar2MaxLabel': '100%',
+        'variant:optionTab1Bar2Rating': diff_flex_rating,
+
+        # Tab 2 (Terrain) with order: Powder, All Mountain, Resort, Freestyle/Park
+        'variant:optionTab2Label': 'Terrain',
+        'variant:optionTab2Visible': True,
+
+        'variant:optionTab2Bar1Name': 'Powder',
+        'variant:optionTab2Bar1Visible': True,
+        'variant:optionTab2Bar1MinLabel': '10%',
+        'variant:optionTab2Bar1MaxLabel': '100%',
+        'variant:optionTab2Bar1Min': '10',
+        'variant:optionTab2Bar1Max': '100',
+        'variant:optionTab2Bar1Rating': powder_rating,
+
+        'variant:optionTab2Bar2Name': 'All Mountain',
+        'variant:optionTab2Bar2Visible': True,
+        'variant:optionTab2Bar2MinLabel': '10%',
+        'variant:optionTab2Bar2MaxLabel': '100%',
+        'variant:optionTab2Bar2Min': '10',
+        'variant:optionTab2Bar2Max': '100',
+        'variant:optionTab2Bar2Rating': all_mountain_rating,
+
+        'variant:optionTab2Bar3Name': 'Resort',
+        'variant:optionTab2Bar3Visible': True,
+        'variant:optionTab2Bar3MinLabel': '10%',
+        'variant:optionTab2Bar3MaxLabel': '100%',
+        'variant:optionTab2Bar3Min': '10',
+        'variant:optionTab2Bar3Max': '100',
+        'variant:optionTab2Bar3Rating': resort_rating,
+
+        'variant:optionTab2Bar4Name': 'Freestyle/Park',
+        'variant:optionTab2Bar4Visible': True,
+        'variant:optionTab2Bar4MinLabel': '10%',
+        'variant:optionTab2Bar4MaxLabel': '100%',
+        'variant:optionTab2Bar4Min': '10',
+        'variant:optionTab2Bar4Max': '100',
+        'variant:optionTab2Bar4Rating': park_rating,
+
+#         'variant:frontPhoto': 'Dupraz/Dupraz D1-5-5-165/Dupraz-snowboards-D1-5-5-STD-TOP-125x735.png',
+#         'variant:backPhoto': 'Dupraz/Dupraz D1-5-5-165/Dupraz-snowboards-D1-X5-130x735.png'
+        'variant:frontPhoto': '',
+        'variant:backPhoto': ''
+    }
+    return base
+
 def convert_source_to_products(source_file, output_file):
     """
-    Convert a source Excel file to the format of a products.csv file with all specified columns.
-    Args:
-        source_file (str): Path to the source Excel file.
-        output_file (str): Path to save the converted file.
+    Convert source Excel data to Vendure format.
+    If no variants (just one line): description = product_shortdesc, variation:shortdescription = ''
+    If variants:
+        First line (product line): description = product_shortdesc, variation:shortdescription = ''
+        Subsequent variants: description = '', variation:shortdescription = product_shortdesc from their own row
     """
     try:
-        # Load the source file
         source_data = pd.read_excel(source_file)
         print("Source data loaded successfully.")
     except Exception as e:
         print(f"Error loading source file: {e}")
         return
 
-    # Define all columns for the output file
-    columns = ['name', 'slug', 'description', 'assets', 'facets', 'optionGroups', 'optionValues', 'sku', 'price', 'taxCategory',
-               'stockOnHand', 'trackInventory', 'variantAssets', 'variantFacets',
-               'variant:descriptionTab1Label', 'variant:descriptionTab1Visible', 'variant:descriptionTab1Content', 'product:brand',
-               'variant:optionTab1Label', 'variant:optionTab1Visible', 'variant:optionTab1Bar1Name', 'variant:optionTab1Bar1Visible',
-               'variant:optionTab1Bar1Min', 'variant:optionTab1Bar1Max', 'variant:optionTab1Bar1MinLabel', 'variant:optionTab1Bar1MaxLabel',
-               'variant:optionTab1Bar1Rating']
-
-    # Define facet columns in the source data
+    # Identify facet columns
     facet_columns = [col for col in source_data.columns if col.startswith('facets.')]
 
-    # Create an empty DataFrame with the defined columns
-    converted_data = pd.DataFrame(columns=columns)
+    # Check for multiple variants
+    option_group_col = 'optionGroups #1'
+    option_value_col = 'option Values #1'
+    has_options = (option_group_col in source_data.columns and option_value_col in source_data.columns)
 
-    for index, row in source_data.iterrows():
-        new_row = {}
+    if 'name' in source_data.columns and 'slug' in source_data.columns:
+        grouped = source_data.groupby(['name', 'slug'], dropna=False)
+    else:
+        grouped = [((None, None), source_data)]
 
-        # Map fields from the source data to the output format
-        try:
-            new_row['name'] = str(row.get('name', ''))
-            new_row['slug'] = str(row.get('slug', ''))
-            new_row['sku'] = str(row.get('sku', ''))
-            new_row['assets'] = 'Dupraz/Dupraz D1-5-2-158/Dupraz-snowboards-D1-5-2.png|Dupraz/Dupraz D1-5-2-158/Dupraz-snowboards-D1-5-2-profile-side.png|Dupraz/Dupraz D1-5-2-158/Dupraz-snowboards-D1-5-2-profile-top.png|Dupraz/Dupraz D1-5-2-158/Dupraz-snowboards-D1-5-2-TOP-1-305x1780.png|Dupraz/Dupraz D1-5-2-158/Dupraz-snowboards-D1-5-2N.png|Dupraz/Dupraz D1-5-2-158/Dupraz-snowboards-D1-5-2N-TOP-305x1780.png'
-            new_row['price'] = row.get('price', 0)  # Default price to 0 if missing
-            new_row['taxCategory'] = row.get('taxCategory', 'standard')
-            new_row['trackInventory'] = True  # Always set to True
-            new_row['optionGroups'] = str(row.get('optionGroups', ''))
+    columns = [
+        'name', 'slug', 'description', 'variation:shortdescription', 'assets', 'facets', 'optionGroups', 'optionValues', 'sku', 'price', 'taxCategory',
+        'stockOnHand', 'trackInventory', 'variantAssets', 'variantFacets',
+        'variant:descriptionTab1Label', 'variant:descriptionTab1Visible', 'variant:descriptionTab1Content', 'product:brand',
+        'variant:optionTab1Label', 'variant:optionTab1Visible', 'variant:optionTab1Bar1Name', 'variant:optionTab1Bar1Visible',
+        'variant:optionTab1Bar1Min', 'variant:optionTab1Bar1Max', 'variant:optionTab1Bar1MinLabel', 'variant:optionTab1Bar1MaxLabel',
+        'variant:optionTab1Bar1Rating', 'variant:optionTab1Bar2Name', 'variant:optionTab1Bar2Visible', 'variant:optionTab1Bar2Min',
+        'variant:optionTab1Bar2Max', 'variant:optionTab1Bar2MinLabel', 'variant:optionTab1Bar2MaxLabel', 'variant:optionTab1Bar2Rating',
+        'variant:optionTab2Label', 'variant:optionTab2Visible',
+        'variant:optionTab2Bar1Name','variant:optionTab2Bar1Visible','variant:optionTab2Bar1MinLabel','variant:optionTab2Bar1MaxLabel',
+        'variant:optionTab2Bar1Min','variant:optionTab2Bar1Max','variant:optionTab2Bar1Rating',
+        'variant:optionTab2Bar2Name','variant:optionTab2Bar2Visible','variant:optionTab2Bar2MinLabel','variant:optionTab2Bar2MaxLabel',
+        'variant:optionTab2Bar2Min','variant:optionTab2Bar2Max','variant:optionTab2Bar2Rating',
+        'variant:optionTab2Bar3Name','variant:optionTab2Bar3Visible','variant:optionTab2Bar3MinLabel','variant:optionTab2Bar3MaxLabel',
+        'variant:optionTab2Bar3Min','variant:optionTab2Bar3Max','variant:optionTab2Bar3Rating',
+        'variant:optionTab2Bar4Name','variant:optionTab2Bar4Visible','variant:optionTab2Bar4MinLabel','variant:optionTab2Bar4MaxLabel',
+        'variant:optionTab2Bar4Min','variant:optionTab2Bar4Max','variant:optionTab2Bar4Rating',
+        'variant:frontPhoto', 'variant:backPhoto'
+    ]
 
-            # Process and merge facets
-            new_row['facets'] = process_facets(row, facet_columns)
+    converted_data = []
 
-            # Clean descriptions
-            new_row['description'] = clean_html(row.get('product:shortdescription HTML', ''))
-            
-            new_row['variant:descriptionTab1Label'] = 'Long Description'
-            new_row['variant:descriptionTab1Visible'] = 'True'
-            new_row['variant:descriptionTab1Content'] = clean_html(row.get('product:longdescription HTML', ''))
-            new_row['product:brand'] = row.get('product:Brand', '')
+    for (prod_name, prod_slug), group in (grouped if isinstance(grouped, list) else grouped):
+        if pd.isna(prod_name):
+            prod_name = ''
+        if pd.isna(prod_slug):
+            prod_slug = ''
 
-            new_row['variant:optionTab1Label'] = 'Performance ratings'
-            new_row['variant:optionTab1Visible'] = 'True'
+        first_row = group.iloc[0]
+        product_info = process_row(first_row, facet_columns)
+        # product_info currently contains product-level shortdesc from the first row.
 
-            new_row['variant:optionTab1Bar1Name'] = 'Difficulty rider level rating'
-            new_row['variant:optionTab1Bar1Visible'] = 'True'
-            new_row['variant:optionTab1Bar1MinLabel'] = '10%'
-            new_row['variant:optionTab1Bar1MaxLabel'] = '100%'
-            new_row['variant:optionTab1Bar1Min'] = '10'
-            new_row['variant:optionTab1Bar1Max'] = '100'
-            new_row['variant:optionTab1Bar1Rating'] = parse_rating(row.get('product:Difficulty riderlevel rating ', ''))
+        if has_options:
+            option_group_values = group[option_group_col].dropna().unique()
+            if len(option_group_values) > 0:
+                og = option_group_values[0]
+                option_values = group[option_value_col].dropna().unique()
 
-            new_row['variant:optionTab1Bar2Name'] = 'Difficulty flex rating'
-            new_row['variant:optionTab1Bar2Visible'] = 'True'
-            new_row['variant:optionTab1Bar2MinLabel'] = '10%'
-            new_row['variant:optionTab1Bar2MaxLabel'] = '100%'
-            new_row['variant:optionTab1Bar2Min'] = '10'
-            new_row['variant:optionTab1Bar2Max'] = '100'
-            new_row['variant:optionTab1Bar2Rating'] = parse_rating(row.get('product:Difficulty flex rating ', ''))
+                if len(option_values) == 0:
+                    # No option values, single variant line = product line only
+                    variant_line = product_info.copy()
+                    sku = str(first_row.get('sku', f"{prod_slug}_default"))
+                    if pd.isna(sku) or sku.lower() == 'nan':
+                        sku = f"{prod_slug}_default"
+                    variant_line['sku'] = sku
+                    # description = product_short_desc from first_row
+                    # variation:shortdescription = ''
+                    converted_data.append(variant_line)
+                else:
+                    # First variant line = product line
+                    first_val = option_values[0]
+                    variant_line = product_info.copy()
+                    variant_line['optionGroups'] = og
+                    variant_line['optionValues'] = first_val
+                    sku = first_row.get('sku', f"{prod_slug}_{first_val}")
+                    if pd.isna(sku) or str(sku).lower() == 'nan':
+                        sku = f"{prod_slug}_{first_val}"
+                    variant_line['sku'] = sku
+                    # First line: use first_row shortdesc for description
+                    variant_line['variation:shortdescription'] = ''
+                    converted_data.append(variant_line)
 
+                    # Subsequent variants = variation lines
+                    for val in option_values[1:]:
+                        new_variant = {k: '' for k in columns}
+                        # Inherit variant-level info
+                        new_variant['optionGroups'] = og
+                        new_variant['optionValues'] = val
+                        new_variant['price'] = product_info['price']
+                        new_variant['taxCategory'] = product_info['taxCategory']
+                        new_variant['stockOnHand'] = product_info['stockOnHand']
+                        new_variant['trackInventory'] = product_info['trackInventory']
 
-            new_row['variant:optionTab2Label'] = 'Terrain ratings'
-            new_row['variant:optionTab2Visible'] = 'True'
-            
-            new_row['variant:optionTab2Bar1Name'] = 'RESORT terrainlevel rating'
-            new_row['variant:optionTab2Bar1Visible'] = 'True'
-            new_row['variant:optionTab2Bar1MinLabel'] = '10%'
-            new_row['variant:optionTab2Bar1MaxLabel'] = '100%'
-            new_row['variant:optionTab2Bar1Min'] = '10'
-            new_row['variant:optionTab2Bar1Max'] = '100'
-            new_row['variant:optionTab2Bar1Rating'] = parse_rating(row.get('product:RESORT terrainlevel rating ', ''))
+                        # Inherit variant bars and long desc
+                        for c in columns:
+                            if c.startswith('variant:optionTab') or c in [
+                                'variant:descriptionTab1Label','variant:descriptionTab1Visible','variant:descriptionTab1Content',
+                                'variant:frontPhoto','variant:backPhoto','product:brand'
+                            ]:
+                                new_variant[c] = product_info[c]
 
+                        sku = f"{prod_slug}_{val}"
+                        new_variant['sku'] = sku
 
-            new_row['variant:optionTab2Bar2Name'] = 'ALL MOUNTAIN terrainlevel rating'
-            new_row['variant:optionTab2Bar2Visible'] = 'True'
-            new_row['variant:optionTab2Bar2MinLabel'] = '10%'
-            new_row['variant:optionTab2Bar2MaxLabel'] = '100%'
-            new_row['variant:optionTab2Bar2Min'] = '10'
-            new_row['variant:optionTab2Bar2Max'] = '100'
-            new_row['variant:optionTab2Bar2Rating'] = parse_rating(row.get('Product:ALL MOUNTAIN terrainlevel rating ', ''))
+                        # Now, get the unique product shortdesc from this variant's row
+                        val_rows = group[group[option_value_col] == val]
+                        if len(val_rows) > 0:
+                            val_row = val_rows.iloc[0]
+                        else:
+                            val_row = first_row  # fallback if no match
 
-            new_row['variant:optionTab2Bar3Name'] = 'PARK terrainlevel rating'
-            new_row['variant:optionTab2Bar3Visible'] = 'True'
-            new_row['variant:optionTab2Bar3MinLabel'] = '10%'
-            new_row['variant:optionTab2Bar3MaxLabel'] = '100%'
-            new_row['variant:optionTab2Bar3Min'] = '10'
-            new_row['variant:optionTab2Bar3Max'] = '100'
-            new_row['variant:optionTab2Bar3Rating'] = parse_rating(row.get('Product:PARK terrainlevel rating ', ''))
+                        unique_short_desc = clean_html(val_row.get('product:shortdescription HTML', ''))
 
+                        # Subsequent variants: description = '', variation:shortdescription = unique product short desc
+                        new_variant['description'] = ''
+                        new_variant['variation:shortdescription'] = unique_short_desc
+                        converted_data.append(new_variant)
 
-            new_row['variant:optionTab3Label'] = 'Additional'
-            new_row['variant:optionTab3Visible'] = 'True'
+            else:
+                # No option groups, single variant line = product line only
+                variant_line = product_info.copy()
+                sku = str(first_row.get('sku', f"{prod_slug}_default"))
+                if pd.isna(sku) or sku.lower() == 'nan':
+                    sku = f"{prod_slug}_default"
+                variant_line['sku'] = sku
+                # description = product_short_desc from this single line
+                # variation:shortdescription = ''
+                converted_data.append(variant_line)
+        else:
+            # No options at all, single line only product line
+            variant_line = product_info.copy()
+            sku = str(first_row.get('sku', f"{prod_slug}_default"))
+            if pd.isna(sku) or sku.lower() == 'nan':
+                sku = f"{prod_slug}_default"
+            variant_line['sku'] = sku
+            # description = product_short_desc from this single line
+            # variation:shortdescription = ''
+            converted_data.append(variant_line)
 
-            new_row['variant:optionTab3Bar1Name'] = 'POWDER terrainlevel rating'
-            new_row['variant:optionTab3Bar1Visible'] = 'True'
-            new_row['variant:optionTab3Bar1MinLabel'] = '10%'
-            new_row['variant:optionTab3Bar1MaxLabel'] = '100%'
-            new_row['variant:optionTab3Bar1Min'] = '10'
-            new_row['variant:optionTab3Bar1Max'] = '100'
-            new_row['variant:optionTab3Bar1Rating'] = parse_rating(row.get('Product:POWDER terrainlevel rating ', ''))
+    df = pd.DataFrame(converted_data, columns=columns)
+    # Replace True/False with 'true'/'false'
+    df = df.replace({True:'true',False:'false','nan':''}, regex=True)
 
-        except Exception as e:
-            print(f"Error processing row {index}: {e}")
-            continue
-
-        # Append the row to the DataFrame
-        converted_data = pd.concat([converted_data, pd.DataFrame([new_row])], ignore_index=True)
-
-    # Save the converted data
     try:
-        converted_data.to_csv(output_file, index=False)
+        df.to_csv(output_file, index=False)
         print(f"File saved to {output_file}")
     except Exception as e:
         print(f"Error saving output file: {e}")
 
-# Example usage:
-# python3 convert_pim_to_products.py master.xlsx mapped.csv
 if __name__ == "__main__":
     import sys
 
     if len(sys.argv) != 3:
-        print("Usage: python convert_pim_to_products.py <source_file> <output_file>")
+        print("Usage: python3 convert_pim_to_products.py <source_file> <output_file>")
         sys.exit(1)
 
     source_file = sys.argv[1]
