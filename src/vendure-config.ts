@@ -15,6 +15,7 @@ import 'dotenv/config';
 import path from 'path';
 import { MultivendorPlugin } from './plugins/multivendor-plugin/multivendor.plugin';
 import { ReviewsPlugin } from './plugins/reviews/reviews-plugin';
+import { Application } from 'express'; // Import the Express Application type
 
 const IS_DEV = process.env.APP_ENV === 'dev' || false;
 
@@ -56,6 +57,14 @@ export const config: VendureConfig = {
             },
             credentials: true, // Allow cookies with cross-origin requests
         },
+        middleware: [
+            {
+                handler: (app: Application) => {
+                    app.set('trust proxy', true); // Trust the proxy setting the X-Forwarded-For header
+                },
+                route: '/',
+            },
+        ],
     },
     authOptions: {
         tokenMethod: ['bearer', 'cookie'],
@@ -64,9 +73,7 @@ export const config: VendureConfig = {
             password: process.env.SUPERADMIN_PASSWORD,
         },
         cookieOptions: {
-            secret: process.env.COOKIE_SECRET || 'default-secret', // Secret for signing cookies
-            sameSite: process.env.APP_ENV === 'prod' ? 'none' : 'lax', // 'none' for cross-origin, 'lax' for local
-            secure: process.env.APP_ENV === 'prod', // Enable HTTPS cookies in production
+            secret: process.env.COOKIE_SECRET,
         },
     },
     dbConnectionOptions: {
