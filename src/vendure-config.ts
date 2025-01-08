@@ -2,18 +2,21 @@ import {
     dummyPaymentHandler,
     DefaultJobQueuePlugin,
     DefaultSearchPlugin,
-    VendureConfig, bootstrap, StockDisplayStrategy, RequestContext, ProductVariant,
+    VendureConfig,
+    bootstrap,
+    StockDisplayStrategy,
+    RequestContext,
+    ProductVariant,
 } from '@vendure/core';
 import { defaultEmailHandlers, EmailPlugin } from '@vendure/email-plugin';
 import { AssetServerPlugin, configureS3AssetStorage } from '@vendure/asset-server-plugin';
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
 import 'dotenv/config';
 import path from 'path';
-import { MultivendorPlugin } from "./plugins/multivendor-plugin/multivendor.plugin";
-import { ReviewsPlugin } from "./plugins/reviews/reviews-plugin";
+import { MultivendorPlugin } from './plugins/multivendor-plugin/multivendor.plugin';
+import { ReviewsPlugin } from './plugins/reviews/reviews-plugin';
 
 const IS_DEV = process.env.APP_ENV === 'dev';
-
 
 export class ExactStockDisplayStrategy implements StockDisplayStrategy {
     getStockLevel(
@@ -28,7 +31,6 @@ export class ExactStockDisplayStrategy implements StockDisplayStrategy {
 export const config: VendureConfig = {
     catalogOptions: {
         stockDisplayStrategy: new ExactStockDisplayStrategy(),
-
     },
     apiOptions: {
         port: +(process.env.PORT || 3000),
@@ -40,6 +42,12 @@ export const config: VendureConfig = {
                 adminApiDebug: true,
             }
             : {}),
+        cors: {
+            origin: process.env.FRONTEND_URLS
+                ? process.env.FRONTEND_URLS.split(',').map((url) => url.trim()) // Split comma-separated URLs
+                : ['http://localhost:3000'], // Default to localhost
+            credentials: true, // Enable cross-origin requests with credentials
+        },
     },
     authOptions: {
         tokenMethod: ['bearer', 'cookie'],
@@ -49,6 +57,8 @@ export const config: VendureConfig = {
         },
         cookieOptions: {
             secret: process.env.COOKIE_SECRET,
+            secure: !IS_DEV, // Secure cookies for production
+            sameSite: 'none', // Correct case for cross-origin requests
         },
     },
     dbConnectionOptions: {
@@ -63,9 +73,11 @@ export const config: VendureConfig = {
         synchronize: true,
         migrations: [path.join(__dirname, './migrations/*.+(ts|js)')],
         logging: false,
-        ssl: process.env.DB_CA_CERT ? {
-            ca: process.env.DB_CA_CERT,
-        } : undefined,
+        ssl: process.env.DB_CA_CERT
+            ? {
+                ca: process.env.DB_CA_CERT,
+            }
+            : undefined,
     },
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
@@ -93,9 +105,9 @@ export const config: VendureConfig = {
                 },
             }) : undefined,
         }),
+
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
-        DefaultSearchPlugin.init(
-            { bufferUpdates: false, indexStockStatus: true }),
+        DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
         EmailPlugin.init({
             devMode: true,
             outputPath: path.join(__dirname, '../static/email/test-emails'),
@@ -118,5 +130,3 @@ export const config: VendureConfig = {
         }),
     ],
 };
-
-
