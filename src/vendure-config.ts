@@ -16,7 +16,7 @@ import path from 'path';
 import { MultivendorPlugin } from './plugins/multivendor-plugin/multivendor.plugin';
 import { ReviewsPlugin } from './plugins/reviews/reviews-plugin';
 
-const IS_DEV = process.env.APP_ENV === 'dev';
+const IS_DEV = process.env.APP_ENV === 'dev' || false;
 
 export class ExactStockDisplayStrategy implements StockDisplayStrategy {
     getStockLevel(
@@ -43,10 +43,18 @@ export const config: VendureConfig = {
             }
             : {}),
         cors: {
-            origin: process.env.FRONTEND_URLS
-                ? process.env.FRONTEND_URLS.split(',').map((url) => url.trim()) // Split comma-separated URLs
-                : ['http://localhost:3000'], // Default to localhost
-            credentials: true, // Enable cross-origin requests with credentials
+            origin: (origin, callback) => {
+                const allowedOrigins = process.env.FRONTEND_URLS
+                    ? process.env.FRONTEND_URLS.split(',').map((url) => url.trim())
+                    : ['http://localhost:3000']; // Default for local dev
+
+                if (!origin || allowedOrigins.includes(origin)) {
+                    callback(null, true); // Allow the origin
+                } else {
+                    callback(new Error(`Origin ${origin} is not allowed by CORS`));
+                }
+            },
+            credentials: true, // Allow cookies with cross-origin requests
         },
     },
     authOptions: {
@@ -56,9 +64,9 @@ export const config: VendureConfig = {
             password: process.env.SUPERADMIN_PASSWORD,
         },
         cookieOptions: {
-            secret: process.env.COOKIE_SECRET,
-            secure: !IS_DEV, // Secure cookies for production
-            sameSite: 'none', // Correct case for cross-origin requests
+            secret: process.env.COOKIE_SECRET || 'default-secret', // Secret for signing cookies
+            sameSite: process.env.APP_ENV === 'prod' ? 'none' : 'lax', // 'none' for cross-origin, 'lax' for local
+            secure: process.env.APP_ENV === 'prod', // Enable HTTPS cookies in production
         },
     },
     dbConnectionOptions: {
