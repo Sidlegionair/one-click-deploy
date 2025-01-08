@@ -6,7 +6,7 @@ import {
     bootstrap,
     StockDisplayStrategy,
     RequestContext,
-    ProductVariant,
+    ProductVariant, VendurePlugin, PluginCommonModule,
 } from '@vendure/core';
 import { defaultEmailHandlers, EmailPlugin } from '@vendure/email-plugin';
 import { AssetServerPlugin, configureS3AssetStorage } from '@vendure/asset-server-plugin';
@@ -28,6 +28,7 @@ export class ExactStockDisplayStrategy implements StockDisplayStrategy {
         return saleableStockLevel.toString();
     }
 }
+
 
 export const config: VendureConfig = {
     catalogOptions: {
@@ -57,14 +58,6 @@ export const config: VendureConfig = {
             },
             credentials: true, // Allow cookies with cross-origin requests
         },
-        middleware: [
-            {
-                handler: (app: Application) => {
-                    app.set('trust proxy', true); // Trust the proxy setting the X-Forwarded-For header
-                },
-                route: '/',
-            },
-        ],
     },
     authOptions: {
         tokenMethod: ['bearer', 'cookie'],
