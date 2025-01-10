@@ -29,6 +29,7 @@
     "@vendure/ui-devkit": "^3.1.1",
     "axios": "^1.7.7",
     "copyfiles": "^2.4.1",
+    "csv-stringify": "^6.5.2",
     "dotenv": "16.4.5",
     "pg": "8.13.0",
     "typescript": "5.4.5"

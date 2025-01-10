@@ -1,88 +1,249 @@
-import { populate } from '@vendure/core/cli';
-import { bootstrap, VendureConfig } from '@vendure/core';
+import {
+    bootstrap,
+    VendureConfig,
+    AssetService,
+    RequestContext,
+    ChannelService,
+} from '@vendure/core';
 import { DataSource } from 'typeorm';
 import path from 'path';
 import fs from 'fs';
-import axios from 'axios';
-import FormData from 'form-data';
-import os from 'os';
+import { parse } from 'csv-parse/sync';
+import { stringify } from 'csv-stringify/sync';
+import { ReadStream } from 'fs';
+import { populate } from '@vendure/core/cli';
 
 /**
- * @description
  * Populates the DB with initial data if it hasn’t been populated before.
- * Uses a migration table as a flag to ensure it only runs once.
  */
 export async function populateOnFirstRun(config: VendureConfig) {
+    let tempCsvPath = '';
+    const debugMode = true; // Set this to `false` to delete temp CSV on success
+
     try {
         const csvPath = path.resolve('./seed/products_fixed.csv');
-        console.log(`Checking for CSV file at path: ${csvPath}`);
+        console.error(`[INFO] Checking for CSV file at path: ${csvPath}`);
 
         if (!fs.existsSync(csvPath)) {
-            console.error(`CSV file not found at path: ${csvPath}`);
+            console.error(`[ERROR] CSV file not found at path: ${csvPath}`);
             throw new Error(`CSV file not found. Ensure the file exists and the path is correct.`);
-        } else {
-            console.log(`CSV file found at path: ${csvPath}`);
         }
 
         const alreadyPopulated = await isAlreadyPopulated(config);
         if (!alreadyPopulated) {
-            console.log(`No Vendure tables found in DB. Populating database...`);
+            console.error(`[INFO] Vendure tables not found in DB. Populating database...`);
 
-            const assetsDir = path.join(csvPath, '../images');
-            console.log(`Assets directory resolved to: ${assetsDir}`);
+            const assetsDir = path.resolve('./seed/images');
+            console.error(`[INFO] Assets directory resolved to: ${assetsDir}`);
 
-            let assetMapping: Record<string, string> = {};
-            if (fs.existsSync(assetsDir)) {
-                console.log(`Uploading assets from directory: ${assetsDir}`);
-                assetMapping = await uploadAssets(assetsDir, config);
-                console.log(`Asset upload completed. Mapping:`, assetMapping);
+            // Single bootstrap call
+            const app = await bootstrap({
+                ...config,
+                importExportOptions: {
+                    importAssetsDir: assetsDir,
+                },
+                dbConnectionOptions: {
+                    ...config.dbConnectionOptions,
+                    synchronize: true,
+                },
+            });
 
-                console.log(`Generating temporary CSV with uploaded asset IDs...`);
-                const tempCsvPath = generateTempCsv(csvPath, assetMapping);
-                console.log(`Temporary CSV generated at: ${tempCsvPath}`);
+            try {
+                const assetService = app.get(AssetService);
+                const channelService = app.get(ChannelService);
 
-                await populate(
-                    () => bootstrap({
-                        ...config,
-                        importExportOptions: {
-                            importAssetsDir: assetsDir,
-                        },
-                        dbConnectionOptions: {
-                            ...config.dbConnectionOptions,
-                            synchronize: true,
-                        },
-                    }),
-                    require('@vendure/create/assets/initial-data.json'),
-                    tempCsvPath
-                )
-                    .then(app => {
-                        console.log(`[Populate Debug] Finished populating.`);
-                        app.close();
-                    })
-                    .catch(error => {
-                        const err = error as Error;
-                        console.error(`[Populate Debug] Population failed:`, err.message);
-                    });
+                // Get the default channel using ChannelService
+                console.error(`[INFO] Fetching the default channel...`);
+                const defaultChannel = await channelService.getDefaultChannel();
+                console.error(`[INFO] Default channel retrieved: ${defaultChannel.code}`);
 
-                fs.unlinkSync(tempCsvPath); // Clean up temporary CSV
-                console.log(`Temporary CSV file deleted.`);
-            } else {
-                console.warn(`Assets directory not found: ${assetsDir}`);
-                console.log(`Proceeding without assets directory...`);
+                // Create a RequestContext
+                const ctx = new RequestContext({
+                    apiType: 'admin',
+                    channel: defaultChannel,
+                    isAuthorized: true,
+                    authorizedAsOwnerOnly: false,
+                    session: undefined,
+                    req: undefined,
+                    languageCode: defaultChannel.defaultLanguageCode,
+                });
+
+                const csvContent = fs.readFileSync(csvPath, 'utf-8');
+                console.error(`[INFO] Parsing CSV content...`);
+
+                const records: Record<string, string>[] = parse(csvContent, {
+                    columns: true,
+                    skip_empty_lines: true,
+                    trim: true,
+                });
+
+                // Upload assets and get the mapping
+                const assetMappings = await uploadAssets(assetService, ctx, assetsDir, records);
+
+                console.error(`[INFO] Replacing asset paths with IDs in CSV...`);
+                tempCsvPath = generateTempCsvWithAssetIds(csvPath, assetMappings);
+
+                console.error(`[INFO] Temporary CSV generated at: ${tempCsvPath}`);
+
+                // Import products using the modified CSV
+                console.error(`[INFO] Starting products import...`);
+                await importProducts(app, tempCsvPath, config, assetsDir);
+
+                console.error(`[INFO] Products imported successfully.`);
+
+                // Cleanup temporary CSV based on debug mode
+                if (!debugMode && tempCsvPath) {
+                    fs.unlinkSync(tempCsvPath);
+                    console.error(`[INFO] Temporary CSV file deleted.`);
+                } else {
+                    console.error(`[DEBUG] Debug mode enabled. Temporary CSV retained for review: ${tempCsvPath}`);
+                }
+
+                // Mark as populated
+                await markAsPopulated(config);
+            } finally {
+                await app.close();
             }
-
-            await markAsPopulated(config);
         } else {
-            console.log(`Vendure tables already exist. Skipping population.`);
+            console.error(`[INFO] Vendure tables already exist. Skipping population.`);
         }
     } catch (error) {
-        const err = error as Error;
-        console.error(`Failed to populate database on first run:`, err.message);
-        throw err;
+        console.error(`[ERROR] Failed to populate database on first run:`, (error as Error).message);
+        if (tempCsvPath) {
+            console.error(`[INFO] Temporary CSV retained at: ${tempCsvPath}`);
+        }
+        throw error;
     }
 }
 
-async function isAlreadyPopulated(config: VendureConfig) {
+/**
+ * Uploads assets to Vendure and maps file paths to asset IDs.
+ */
+async function uploadAssets(
+    assetService: AssetService,
+    ctx: RequestContext,
+    assetsDir: string,
+    records: Record<string, string>[]
+): Promise<Record<string, string>> {
+    const assetMapping: Record<string, string> = {};
+
+    for (const record of records) {
+        const filePaths = [
+            record['variant:frontPhoto'],
+            record['variant:backPhoto'],
+        ].filter(Boolean);
+
+        for (const filePath of filePaths) {
+            const sanitizedPath = sanitizeFilePath(filePath);
+            const fullPath = path.join(assetsDir, sanitizedPath);
+
+            if (!fs.existsSync(fullPath)) {
+                console.error(`[WARN] Asset file not found: ${fullPath}. Skipping.`);
+                continue;
+            }
+
+            const fileStream: ReadStream = fs.createReadStream(fullPath);
+
+            try {
+                const asset = await assetService.createFromFileStream(fileStream, ctx);
+                if ('id' in asset) {
+                    assetMapping[sanitizedPath] = String(asset.id);
+                    console.error(`[INFO] Uploaded asset "${sanitizedPath}" with ID "${asset.id}".`);
+                } else {
+                    console.error(`[WARN] Failed to upload asset "${sanitizedPath}":`, asset);
+                }
+            } catch (error) {
+                console.error(`[ERROR] Failed to upload asset "${sanitizedPath}":`, (error as Error).message);
+            }
+        }
+    }
+
+    return assetMapping;
+}
+
+/**
+ * Generates a temporary CSV with asset IDs replacing file paths.
+ */
+function generateTempCsvWithAssetIds(
+    originalCsvPath: string,
+    assetMapping: Record<string, string>
+): string {
+    const csvContent = fs.readFileSync(originalCsvPath, 'utf-8');
+    const tempCsvPath = path.resolve('./seed/temp_products_fixed.csv');
+
+    const records: Record<string, string>[] = parse(csvContent, {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true,
+    });
+
+    const updatedRecords = records.map(record => {
+        if (record['variant:frontPhoto']) {
+            record['variant:frontPhoto'] =
+                assetMapping[sanitizeFilePath(record['variant:frontPhoto'])] || '';
+        }
+        if (record['variant:backPhoto']) {
+            record['variant:backPhoto'] =
+                assetMapping[sanitizeFilePath(record['variant:backPhoto'])] || '';
+        }
+        return record;
+    });
+
+    const updatedCsvContent = stringify(updatedRecords, { header: true });
+    fs.writeFileSync(tempCsvPath, updatedCsvContent, 'utf-8');
+
+    console.error(`[INFO] Temporary CSV saved at: ${tempCsvPath}`);
+    return tempCsvPath;
+}
+
+/**
+ * Imports products from the temporary CSV using the existing app instance.
+ */
+async function importProducts(
+    app: any,
+    tempCsvPath: string,
+    config: VendureConfig,
+    assetsDir: string
+) {
+    // Ensure the temporary CSV exists
+    if (!fs.existsSync(tempCsvPath)) {
+        throw new Error(`Temporary CSV file not found at path: ${tempCsvPath}`);
+    }
+
+    // Assuming that Vendure's populate function can be used here
+    // Adjust the path to initial-data.json as per your project structure
+    // const initialDataPath = path.resolve('./seed/initial-data.json');
+    //
+    // if (!fs.existsSync(initialDataPath)) {
+    //     throw new Error(`Initial data JSON not found at path: ${initialDataPath}`);
+    // }
+
+    // Execute the populate function to import products using the existing app instance
+    await populate(
+        async () => app, // Use the existing app instance
+        require('@vendure/create/assets/initial-data.json'),
+        tempCsvPath
+    )
+        .then(() => {
+            console.log(`[Populate Debug] Finished populating products.`);
+        })
+        .catch(error => {
+            console.error(`[Populate Debug] Population failed:`, error);
+            throw error;
+        });
+}
+
+/**
+ * Sanitizes a file path by removing unwanted characters and normalizing.
+ */
+function sanitizeFilePath(filePath: string): string {
+    return filePath.replace(/\)$/, '').trim();
+}
+
+/**
+ * Checks if the database has already been populated.
+ */
+async function isAlreadyPopulated(config: VendureConfig): Promise<boolean> {
     const dataSource = new DataSource({
         ...config.dbConnectionOptions,
         entities: [],
@@ -90,14 +251,8 @@ async function isAlreadyPopulated(config: VendureConfig) {
     });
     await dataSource.initialize();
     try {
-        await dataSource.query(`
-            CREATE TABLE IF NOT EXISTS vendure_migrations (
-                                                              id SERIAL PRIMARY KEY,
-                                                              migration_name VARCHAR(255) UNIQUE NOT NULL
-                );
-        `);
         const result = await dataSource.query(`
-            SELECT * FROM vendure_migrations WHERE migration_name = 'initial-seed';
+            SELECT 1 FROM information_schema.tables WHERE table_name = 'custom_migration_status';
         `);
         return result.length > 0;
     } finally {
@@ -111,91 +266,24 @@ async function markAsPopulated(config: VendureConfig) {
         entities: [],
         synchronize: false,
     });
+
     await dataSource.initialize();
     try {
+        // Create the table with a UNIQUE constraint on migration_name
         await dataSource.query(`
-            INSERT INTO vendure_migrations (migration_name) VALUES ('initial-seed')
+            CREATE TABLE IF NOT EXISTS custom_migration_status (
+                                                                   id SERIAL PRIMARY KEY,
+                                                                   migration_name VARCHAR(255) NOT NULL UNIQUE
+                );
+        `);
+
+        // Insert the migration_name, avoiding duplicates
+        await dataSource.query(`
+            INSERT INTO custom_migration_status (migration_name)
+            VALUES ('initial-seed')
                 ON CONFLICT (migration_name) DO NOTHING;
         `);
     } finally {
         await dataSource.destroy();
     }
-}
-
-async function uploadAssets(assetsDir: string, config: VendureConfig): Promise<Record<string, string>> {
-    const files = fs.readdirSync(assetsDir).filter(file =>
-        file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.png')
-    );
-    const assetMapping: Record<string, string> = {};
-    const vendureApiUrl = `${config.apiOptions.adminApiPath || '/admin-api'}`;
-    const token = process.env.ADMIN_API_TOKEN || '';
-
-    for (const file of files) {
-        const filePath = path.join(assetsDir, file);
-        const formData = new FormData();
-        formData.append('operations', JSON.stringify({
-            query: `
-                mutation($file: Upload!) {
-                    createAssets(input: [{ file: $file }]) {
-                        assets {
-                            id
-                            name
-                        }
-                        errors {
-                            message
-                        }
-                    }
-                }
-            `,
-            variables: { file: null }
-        }));
-        formData.append('map', JSON.stringify({ '0': ['variables.file'] }));
-        formData.append('0', fs.createReadStream(filePath));
-
-        try {
-            const response = await axios.post(vendureApiUrl, formData, {
-                headers: {
-                    ...formData.getHeaders(),
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            const assets = response.data?.data?.createAssets?.assets || [];
-            if (assets.length > 0) {
-                const assetId = assets[0].id;
-                assetMapping[file] = assetId;
-                console.log(`Uploaded asset ${file} with ID ${assetId}`);
-            } else {
-                console.error(`Failed to upload asset ${file}:`, response.data?.errors || 'Unknown error');
-            }
-        } catch (error) {
-            const err = error as Error;
-            console.error(`Error uploading asset ${file}:`, err.message);
-        }
-    }
-
-    return assetMapping;
-}
-
-/**
- * Generates a temporary CSV file by replacing file paths with asset IDs.
- * Leaves columns blank for unresolved or invalid paths.
- */
-function generateTempCsv(csvPath: string, assetMapping: Record<string, string>): string {
-    const csvContent = fs.readFileSync(csvPath, 'utf-8');
-    const tempCsvPath = path.join(os.tmpdir(), `temp_products_${Date.now()}.csv`);
-
-    const updatedContent = csvContent.split('\n').map((line, index) => {
-        let updatedLine = line;
-
-        // Replace file paths with asset IDs or clear unresolved paths
-        updatedLine = updatedLine.replace(/\S+\.(png|jpg|jpeg)/g, match => {
-            return assetMapping[match] || ''; // Replace with ID or clear if not found
-        });
-
-        return updatedLine;
-    }).join('\n');
-
-    fs.writeFileSync(tempCsvPath, updatedContent, 'utf-8');
-    console.log(`Temporary CSV created at: ${tempCsvPath}`);
-    return tempCsvPath;
 }
