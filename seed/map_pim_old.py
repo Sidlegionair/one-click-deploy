@@ -30,17 +30,25 @@ def should_tab_be_visible(tab_bars):
 
 def parse_and_process_bars(row, bar_info):
     bars = []
-    for bar_name, source_key in bar_info:
+    for i, (bar_name, source_key) in enumerate(bar_info, start=1):
         rating = parse_rating(row.get(source_key, ''))
         visible = not pd.isna(rating) and rating > 0
+        # Custom min/max labels for Tab1 Bars
+        min_label = ''
+        max_label = ''
+        if i == 1:  # First bar of Tab 1
+            min_label = 'Beginner'
+            max_label = 'Expert'
+        elif i == 2:  # Second bar of Tab 1
+            min_label = 'Soft'
+            max_label = 'Stiff'
+
         bars.append({
             'name': bar_name,
             'visible': visible,
             'rating': rating if visible else '',
-#             'minLabel': '10%' if visible else '',
-#             'maxLabel': '100%' if visible else '',
-            'minLabel': '',
-            'maxLabel': '',
+            'minLabel': min_label if visible else '',
+            'maxLabel': max_label if visible else '',
             'min': '10',
             'max': '100',
         })
@@ -128,6 +136,9 @@ def convert_source_to_products(source_file, output_file):
             new_row['variant:frontPhoto'] = row.get('Carrouselasset: topPhoto', '')
             new_row['variant:backPhoto'] = row.get('Carrouselasset: BasePhoto', '')
 
+            new_row['variant:shortdescription'] = '' if first_row else row.get('product:shortdescription HTML', '')
+
+
             # Combine OptionGroups and OptionValues
             option_groups, option_values = combine_option_groups_and_values(row, option_group_columns, option_value_columns)
             new_row['optionGroups'] = option_groups if first_row else ''
@@ -145,7 +156,7 @@ def convert_source_to_products(source_file, output_file):
                 ('Difficulty flex rating', 'variant:Flex '),
             ]
             tab1_bars, tab1_visible = parse_and_process_bars(row, tab1_bars_info)
-            new_row['variant:optionTab1Label'] = 'Performance ratings'
+            new_row['variant:optionTab1Label'] = 'Rider level'
             new_row['variant:optionTab1Visible'] = str(tab1_visible)
             for i, bar in enumerate(tab1_bars, start=1):
                 new_row[f'variant:optionTab1Bar{i}Name'] = bar['name']
@@ -158,12 +169,12 @@ def convert_source_to_products(source_file, output_file):
 
             # Process OptionTab2 bars
             tab2_bars_info = [
-                ('Power level rating', 'variant:Powder '),
-                ('All Mountain terrain level rating', 'variant:All mountain  '),
-                ('Freestyle level rating', 'variant:Freestyle '),
+                ('Powder', 'variant:Powder '),
+                ('All Mountain', 'variant:All mountain  '),
+                ('Resort', 'variant:Freestyle '),
             ]
             tab2_bars, tab2_visible = parse_and_process_bars(row, tab2_bars_info)
-            new_row['variant:optionTab2Label'] = 'Terrain ratings'
+            new_row['variant:optionTab2Label'] = 'Terrain'
             new_row['variant:optionTab2Visible'] = str(tab2_visible)
             for i, bar in enumerate(tab2_bars, start=1):
                 new_row[f'variant:optionTab2Bar{i}Name'] = bar['name']

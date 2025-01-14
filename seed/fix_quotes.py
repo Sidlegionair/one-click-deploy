@@ -44,8 +44,8 @@ numeric_columns, string_columns = generate_dynamic_columns(MAX_PRODUCT_OPTION_TA
 # Fixed columns that require quoting
 fixed_columns_to_quote = [
    # "description",
-    "optionGroups",
-    "optionValues",
+#     "optionGroups",
+#     "optionValues",
     #"product:brand",
 #    "variant:descriptionTab1Label",
 #    "variant:descriptionTab1Content",
