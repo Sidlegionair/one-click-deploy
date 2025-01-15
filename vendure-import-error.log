@@ -142,31 +142,19 @@ The number of optionValues in column 'optionValues' must match the number of opt
 The number of optionValues in column 'optionValues' must match the number of optionGroups on line 240
 The number of optionValues in column 'optionValues' must match the number of optionGroups on line 241
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/bataleon/cameleon/bataleon-cameleon-2425-top-base.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/bataleon/cameleon/bataleon-cameleon-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/bataleon/goliath plus/bataleon-goliathplus-2425-detail3.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/bataleon/goliath plus/bataleon-goliathplus-2425-profile2.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/bataleon/surfer/bataleon-surfer-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-2425-detail3.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-2425-profile2.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-193-uni-2425-detail2-variant.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-178+-uni-2425-detail2-variant.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-178++-uni-2425-detail2-variant.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-178x-uni-2425-detail2-variant.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-165-uni-2425-detail2-variant.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-165+-uni-2425-detail2-variant.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-165++-uni-2425-detail2-variant.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-165x-uni-2425-detail2-variant.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-158-uni-2425-detail2-variant.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-158n-uni-2425-detail1-variant.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-158n-uni-2425-detail2-variant.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/dupraz/d1 series/dupraz-d1series-158n-uni-2425-detail2-variant.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/hovercraft 2.0/jones-hovercraft20-2425-detail2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/hovercraft 2.0/jones-hovercraft20-2425-detail3.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/hovercraft 2.0/jones-hovercraft20-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/hovercraft 2.0/jones-hovercraft20-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/hovercraft 2.0/jones-hovercraft20-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/hovercraft 2.0/jones-hovercraft20-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's flagship/jones-mensflagship-2425-top-base.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's flagship/jones-mensflagship-2425-detail1.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's flagship/jones-mensflagship-2425-detail2.png" does not exist
@@ -174,7 +162,7 @@ File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's fla
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's flagship/jones-mensflagship-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's flagship/jones-mensflagship-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's flagship/jones-mensflagship-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's flagship/jones-mensflagship-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's flagship/jones-mensflagship-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's flagship pro/jones-mensflagshippro-2425-top-base.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's flagship pro/jones-mensflagshippro-2425-detail1.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's flagship pro/jones-mensflagshippro-2425-detail2.png" does not exist
@@ -182,9 +170,9 @@ File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's fla
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's flagship pro/jones-mensflagshippro-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's flagship pro/jones-mensflagshippro-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's flagship pro/jones-mensflagshippro-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's flagship pro/jones-mensflagshippro-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/men's flagship pro/jones-mensflagshippro-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mind expander/jones-mindexpander-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mind expander/jones-mindexpander-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mind expander/jones-mindexpander-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mind expander splitboard/jones-mindexpandersplitboard-2425-top-base.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mind expander splitboard/jones-mindexpandersplitboard-2425-detail1.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mind expander splitboard/jones-mindexpandersplitboard-2425-detail2.png" does not exist
@@ -192,12 +180,12 @@ File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mind expa
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mind expander splitboard/jones-mindexpandersplitboard-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mind expander splitboard/jones-mindexpandersplitboard-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mind expander splitboard/jones-mindexpandersplitboard-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mind expander splitboard/jones-mindexpandersplitboard-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mind expander splitboard/jones-mindexpandersplitboard-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mountain surfer/jones-mountainsurfer-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mountain surfer/jones-mountainsurfer-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mountain surfer/jones-mountainsurfer-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mountain surfer/jones-mountainsurfer-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/storm chaser/jones-stormchaser-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/storm chaser/jones-stormchaser-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/storm chaser/jones-stormchaser-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/storm chaser splitboard/jones-stormchasersplitboard-2425-top-base.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/storm chaser splitboard/jones-stormchasersplitboard-2425-detail1.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/storm chaser splitboard/jones-stormchasersplitboard-2425-detail2.png" does not exist
@@ -205,12 +193,12 @@ File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/storm cha
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/storm chaser splitboard/jones-stormchasersplitboard-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/storm chaser splitboard/jones-stormchasersplitboard-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/storm chaser splitboard/jones-stormchasersplitboard-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/storm chaser splitboard/jones-stormchasersplitboard-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/storm chaser splitboard/jones-stormchasersplitboard-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/storm wolf/jones-stormwolf-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/storm wolf/jones-stormwolf-2425-profile2.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/stratos/jones-stratos-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/storm wolf/jones-stormwolf-2425-profile2.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/stratos/jones-stratos-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/ultralight project x/jones-ultralightprojectx-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/ultralight project x/jones-ultralightprojectx-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/ultralight project x/jones-ultralightprojectx-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/women's flagship/jones-womensflagship-2425-top-base.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/women's flagship/jones-womensflagship-2425-detail1.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/women's flagship/jones-womensflagship-2425-detail2.png" does not exist
@@ -218,56 +206,43 @@ File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/women's f
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/women's flagship/jones-womensflagship-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/women's flagship/jones-womensflagship-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/women's flagship/jones-womensflagship-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/women's flagship/jones-womensflagship-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/women's flagship/jones-womensflagship-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mountain snowskate/jones-mountainsnowskate-2425-detail3.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mountain snowskate/jones-mountainsnowskate-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mountain snowskate/jones-mountainsnowskate-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mountain snowskate/jones-mountainsnowskate-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mountain snowskate/jones-mountainsnowskate-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/jones/mountain snowskate/jones-mountainsnowskate-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/k2/alchemist/k2-alchemist-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/k2/alchemist/k2-alchemist-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/k2/antidote/k2-antidote-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/k2/antidote/k2-antidote-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/k2/excavator/k2-excavator-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/k2/excavator/k2-excavator-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/k2/manifest/k2-manifest-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/k2/manifest/k2-manifest-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/k2/niseko pleasures/k2-nisekopleasures-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/k2/niseko pleasures/k2-nisekopleasures-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/k2/special effects/k2-specialeffects-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/k2/special effects/k2-specialeffects-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/k2/tree splitter/k2-treesplitter-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/k2/tree splitter/k2-treesplitter-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/bullet train plus/koruashapes-bullettrainplus-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/bullet train plus/koruashapes-bullettrainplus-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/cafe racer/koruashapes-caferacer-2425-detail1.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/cafe racer/koruashapes-caferacer-2425-detail2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/cafe racer/koruashapes-caferacer-2425-detail3.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/cafe racer/koruashapes-caferacer-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/cafe racer/koruashapes-caferacer-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/cafe racer/koruashapes-caferacer-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/cafe racer plus/koruashapes-caferacerplus-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/cafe racer plus/koruashapes-caferacerplus-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/dart/koruashapes-dart-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/dart/koruashapes-dart-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/dart plus/koruashapes-dartplus-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/dart plus/koruashapes-dartplus-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/otto/koruashapes-otto-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/otto/koruashapes-otto-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/otto plus/koruashapes-ottoplus-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/otto plus/koruashapes-ottoplus-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/pencil/koruashapes-pencil-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/pencil/koruashapes-pencil-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/pencil plus/koruashapes-pencilplus-2425-top-base.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/pencil plus/koruashapes-pencilplus-2425-detail1.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/pencil plus/koruashapes-pencilplus-2425-detail2.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/pencil plus/koruashapes-pencilplus-2425-detail3.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/pencil plus/koruashapes-pencilplus-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/pencil plus/koruashapes-pencilplus-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/pencil plus/koruashapes-pencilplus-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/pencil plus/koruashapes-pencilplus-2425-profile1.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/pencil plus/koruashapes-pencilplus-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/pin tonic/koruashapes-pintonic-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/pin tonic/koruashapes-pintonic-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/pocket rocket/koruashapes-pocketrocket-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/pocket rocket/koruashapes-pocketrocket-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/transition finder/koruashapes-transitionfinder-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/transition finder/koruashapes-transitionfinder-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/transition finder plus/koruashapes-transitionfinderplus-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/transition finder plus/koruashapes-transitionfinderplus-2425-profile2.png)" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/überegg/koruashapes-überegg-2425-top-base.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/überegg/koruashapes-überegg-2425-detail1.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/überegg/koruashapes-überegg-2425-detail2.png" does not exist
@@ -275,53 +250,59 @@ File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/ü
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/überegg/koruashapes-überegg-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/überegg/koruashapes-überegg-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/überegg/koruashapes-überegg-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/überegg/koruashapes-überegg-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/korua shapes/überegg/koruashapes-überegg-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/apex orca/libtech-apexorca-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/apex orca/libtech-apexorca-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/apex orca/libtech-apexorca-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/apex orca/libtech-apexorca-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/cygnus bm/libtech-cygnusbm-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/cygnus bm/libtech-cygnusbm-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/cygnus bm/libtech-cygnusbm-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/cygnus bm/libtech-cygnusbm-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/cygnus bm/libtech-cygnusbm-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/golden orca/libtech-goldenorca-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/golden orca/libtech-goldenorca-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/golden orca/libtech-goldenorca-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/golden orca/libtech-goldenorca-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jamie lynn/libtech-jamielynn-2425-detail3.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jamie lynn/libtech-jamielynn-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jamie lynn/libtech-jamielynn-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jamie lynn/libtech-jamielynn-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jamie lynn/libtech-jamielynn-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jamie lynn/libtech-jamielynn-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jamie lynn twin 30yr/libtech-jamielynntwin30yr-2425-detail3.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jamie lynn twin 30yr/libtech-jamielynntwin30yr-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jamie lynn twin 30yr/libtech-jamielynntwin30yr-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jamie lynn twin 30yr/libtech-jamielynntwin30yr-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jamie lynn twin 30yr/libtech-jamielynntwin30yr-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jamie lynn twin 30yr/libtech-jamielynntwin30yr-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jl short wide/libtech-jlshortwide-2425-detail3.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jl short wide/libtech-jlshortwide-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jl short wide/libtech-jlshortwide-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jl short wide/libtech-jlshortwide-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jl short wide/libtech-jlshortwide-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/jl short wide/libtech-jlshortwide-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rad ripper/libtech-mayhemradripper-2425-detail3.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rad ripper/libtech-mayhemradripper-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rad ripper/libtech-mayhemradripper-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rad ripper/libtech-mayhemradripper-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rad ripper/libtech-mayhemradripper-2425-profile2.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rad ripper/libtech-mayhemradripper-2425-profile2.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rad ripper/libtech-mayhemradripper-153-uni-2425-detail1-variant.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rad ripper/libtech-mayhemradripper-153-uni-2425-detail2-variant.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rad ripper/libtech-mayhemradripper-156-uni-2425-top-base-variant.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rad ripper/libtech-mayhemradripper-156-uni-2425-detail1-variant.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rad ripper/libtech-mayhemradripper-156-uni-2425-detail2-variant.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rad ripper/libtech-mayhemradripper-159-uni-2425-detail1-variant.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rad ripper/libtech-mayhemradripper-159-uni-2425-detail2-variant.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem retro ripper/libtech-mayhemretroripper-2425-detail2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem retro ripper/libtech-mayhemretroripper-2425-detail3.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem retro ripper/libtech-mayhemretroripper-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem retro ripper/libtech-mayhemretroripper-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem retro ripper/libtech-mayhemretroripper-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem retro ripper/libtech-mayhemretroripper-2425-profile2.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem retro ripper/libtech-mayhemretroripper-2425-profile2.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem retro ripper/libtech-mayhemretroripper-156-uni-2425-detail1-variant.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem retro ripper/libtech-mayhemretroripper-156-uni-2425-detail2-variant.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem retro ripper/libtech-mayhemretroripper-161-uni-2425-detail1-variant.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem retro ripper/libtech-mayhemretroripper-161-uni-2425-detail2-variant.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem retro ripper/libtech-mayhemretroripper-166-uni-2425-detail1-variant.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem retro ripper/libtech-mayhemretroripper-166-uni-2425-detail2-variant.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rocket/libtech-mayhemrocket-2425-detail3.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rocket/libtech-mayhemrocket-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rocket/libtech-mayhemrocket-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mayhem rocket/libtech-mayhemrocket-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mc wayfinder ii/libtech-mcwayfinderii-2425-top-base.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mc wayfinder ii/libtech-mcwayfinderii-2425-detail1.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mc wayfinder ii/libtech-mcwayfinderii-2425-detail2.png" does not exist
@@ -329,26 +310,26 @@ File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mc wayf
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mc wayfinder ii/libtech-mcwayfinderii-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mc wayfinder ii/libtech-mcwayfinderii-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mc wayfinder ii/libtech-mcwayfinderii-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mc wayfinder ii/libtech-mcwayfinderii-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/mc wayfinder ii/libtech-mcwayfinderii-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/orca/libtech-orca-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/orca/libtech-orca-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/orca/libtech-orca-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/orca/libtech-orca-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/orca/libtech-orca-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/son of birdman/libtech-sonofbirdman-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/son of birdman/libtech-sonofbirdman-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/son of birdman/libtech-sonofbirdman-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/son of birdman/libtech-sonofbirdman-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/theda/libtech-theda-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/theda/libtech-theda-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/theda/libtech-theda-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/theda/libtech-theda-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/theda/libtech-theda-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/t.rice pro/libtech-tricepro-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/t.rice pro/libtech-tricepro-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/t.rice pro/libtech-tricepro-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/t.rice pro/libtech-tricepro-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/t.rice pro/libtech-tricepro-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/t.rice pro camber/libtech-triceprocamber-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/t.rice pro camber/libtech-triceprocamber-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/t.rice pro camber/libtech-triceprocamber-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/t.rice pro camber/libtech-triceprocamber-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/t.rice pro camber/libtech-triceprocamber-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snosk8 deck/libtech-snosk8deck-2425-top-base.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snosk8 deck/libtech-snosk8deck-2425-detail1.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snosk8 deck/libtech-snosk8deck-2425-detail2.png" does not exist
@@ -356,80 +337,67 @@ File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snosk8 
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snosk8 deck/libtech-snosk8deck-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snosk8 deck/libtech-snosk8deck-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snosk8 deck/libtech-snosk8deck-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snosk8 deck/libtech-snosk8deck-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snosk8 deck/libtech-snosk8deck-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snowskate/libtech-snowskate-2425-top-base.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snowskate/libtech-snowskate-2425-detail2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snowskate/libtech-snowskate-2425-detail3.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snowskate/libtech-snowskate-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snowskate/libtech-snowskate-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snowskate/libtech-snowskate-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snowskate/libtech-snowskate-2425-profile2.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /live wire mbhc classic /moonchildsnowboards-livewirembhcclassic--top-base.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /live wire mbhc classic /moonchildsnowboards-livewirembhcclassic--detail1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /live wire mbhc classic /moonchildsnowboards-livewirembhcclassic--detail2.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /live wire mbhc classic /moonchildsnowboards-livewirembhcclassic--detail3.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /live wire mbhc classic /moonchildsnowboards-livewirembhcclassic--detail4.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /live wire mbhc classic /moonchildsnowboards-livewirembhcclassic--detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /live wire mbhc classic /moonchildsnowboards-livewirembhcclassic--profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /live wire mbhc classic /moonchildsnowboards-livewirembhcclassic--profile2.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /malibu /moonchildsnowboards-malibu-2425-top-base.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /malibu /moonchildsnowboards-malibu-2425-detail1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /malibu /moonchildsnowboards-malibu-2425-detail2.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /malibu /moonchildsnowboards-malibu-2425-detail3.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /malibu /moonchildsnowboards-malibu-2425-detail4.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /malibu /moonchildsnowboards-malibu-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /malibu /moonchildsnowboards-malibu-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /malibu /moonchildsnowboards-malibu-2425-profile2.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /malibu mars /moonchildsnowboards-malibumars-2425-top-base.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /malibu mars /moonchildsnowboards-malibumars-2425-detail1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /malibu mars /moonchildsnowboards-malibumars-2425-detail2.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /malibu mars /moonchildsnowboards-malibumars-2425-detail3.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /malibu mars /moonchildsnowboards-malibumars-2425-detail4.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /malibu mars /moonchildsnowboards-malibumars-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /malibu mars /moonchildsnowboards-malibumars-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /malibu mars /moonchildsnowboards-malibumars-2425-profile2.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /space racer/moonchildsnowboards-spaceracer-2425-top-base.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /space racer/moonchildsnowboards-spaceracer-2425-detail1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /space racer/moonchildsnowboards-spaceracer-2425-detail2.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /space racer/moonchildsnowboards-spaceracer-2425-detail3.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /space racer/moonchildsnowboards-spaceracer-2425-detail4.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /space racer/moonchildsnowboards-spaceracer-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /space racer/moonchildsnowboards-spaceracer-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards /space racer/moonchildsnowboards-spaceracer-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/libtech/snowskate/libtech-snowskate-2425-profile2.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/live wire mbhc classic /moonchildsnowboards-livewirembhcclassic--top-base.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/live wire mbhc classic /moonchildsnowboards-livewirembhcclassic--detail1.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/live wire mbhc classic /moonchildsnowboards-livewirembhcclassic--detail2.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/live wire mbhc classic /moonchildsnowboards-livewirembhcclassic--detail3.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/live wire mbhc classic /moonchildsnowboards-livewirembhcclassic--detail4.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/live wire mbhc classic /moonchildsnowboards-livewirembhcclassic--detail5.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/live wire mbhc classic /moonchildsnowboards-livewirembhcclassic--profile1.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/live wire mbhc classic /moonchildsnowboards-livewirembhcclassic--profile2.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/malibu /moonchildsnowboards-malibu-2425-top-base.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/malibu /moonchildsnowboards-malibu-2425-detail1.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/malibu /moonchildsnowboards-malibu-2425-detail2.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/malibu /moonchildsnowboards-malibu-2425-detail3.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/malibu /moonchildsnowboards-malibu-2425-detail4.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/malibu /moonchildsnowboards-malibu-2425-detail5.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/malibu /moonchildsnowboards-malibu-2425-profile1.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/malibu /moonchildsnowboards-malibu-2425-profile2.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/malibu mars /moonchildsnowboards-malibumars-2425-top-base.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/malibu mars /moonchildsnowboards-malibumars-2425-detail1.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/malibu mars /moonchildsnowboards-malibumars-2425-detail2.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/malibu mars /moonchildsnowboards-malibumars-2425-detail3.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/malibu mars /moonchildsnowboards-malibumars-2425-detail4.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/malibu mars /moonchildsnowboards-malibumars-2425-detail5.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/malibu mars /moonchildsnowboards-malibumars-2425-profile1.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/malibu mars /moonchildsnowboards-malibumars-2425-profile2.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/space racer/moonchildsnowboards-spaceracer-2425-detail1.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/space racer/moonchildsnowboards-spaceracer-2425-detail2.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/space racer/moonchildsnowboards-spaceracer-2425-detail3.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/space racer/moonchildsnowboards-spaceracer-2425-detail4.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/space racer/moonchildsnowboards-spaceracer-2425-detail5.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/space racer/moonchildsnowboards-spaceracer-2425-profile1.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/moonchild snowboards/space racer/moonchildsnowboards-spaceracer-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/megalight/nidecker-megalight-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/megalight/nidecker-megalight-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/megalight/nidecker-megalight-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/megalight/nidecker-megalight-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/ultralight/nidecker-ultralight-2425-detail3.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/ultralight/nidecker-ultralight-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/ultralight/nidecker-ultralight-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/ultralight/nidecker-ultralight-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/ultralight/nidecker-ultralight-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/the gun/nidecker-thegun-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/the gun/nidecker-thegun-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/the gun/nidecker-thegun-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/the gun/nidecker-thegun-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/the gun/nidecker-thegun-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/the mosquito/nidecker-themosquito-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/the mosquito/nidecker-themosquito-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/the mosquito/nidecker-themosquito-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/the mosquito/nidecker-themosquito-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/the smoke/nidecker-thesmoke-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/the smoke/nidecker-thesmoke-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/the smoke/nidecker-thesmoke-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/the smoke/nidecker-thesmoke-2425-profile2.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet/unitedshapes-cadet-2425-top-base.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet/unitedshapes-cadet-2425-detail1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet/unitedshapes-cadet-2425-detail2.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet/unitedshapes-cadet-2425-detail3.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/nidecker/the smoke/nidecker-thesmoke-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet/unitedshapes-cadet-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet/unitedshapes-cadet-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet/unitedshapes-cadet-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet/unitedshapes-cadet-2425-profile2.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet ltd/unitedshapes-cadetltd-2425-top-base.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet ltd/unitedshapes-cadetltd-2425-detail1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet ltd/unitedshapes-cadetltd-2425-detail2.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet ltd/unitedshapes-cadetltd-2425-detail3.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet ltd/unitedshapes-cadetltd-2425-detail4.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet ltd/unitedshapes-cadetltd-2425-detail5.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet ltd/unitedshapes-cadetltd-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet ltd/unitedshapes-cadetltd-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/cadet/unitedshapes-cadet-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/deep reach/unitedshapes-deepreach-2425-top-base.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/deep reach/unitedshapes-deepreach-2425-detail1.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/deep reach/unitedshapes-deepreach-2425-detail2.png" does not exist
@@ -437,7 +405,7 @@ File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/d
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/deep reach/unitedshapes-deepreach-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/deep reach/unitedshapes-deepreach-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/deep reach/unitedshapes-deepreach-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/deep reach/unitedshapes-deepreach-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/deep reach/unitedshapes-deepreach-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/experiment 01/unitedshapes-experiment01-2425-top-base.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/experiment 01/unitedshapes-experiment01-2425-detail1.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/experiment 01/unitedshapes-experiment01-2425-detail2.png" does not exist
@@ -445,28 +413,16 @@ File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/e
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/experiment 01/unitedshapes-experiment01-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/experiment 01/unitedshapes-experiment01-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/experiment 01/unitedshapes-experiment01-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/experiment 01/unitedshapes-experiment01-2425-profile2.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/horizon/unitedshapes-horizon-2425-top-base.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/horizon/unitedshapes-horizon-2425-detail1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/horizon/unitedshapes-horizon-2425-detail2.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/horizon/unitedshapes-horizon-2425-detail3.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/experiment 01/unitedshapes-experiment01-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/horizon/unitedshapes-horizon-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/horizon/unitedshapes-horizon-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/horizon/unitedshapes-horizon-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/horizon/unitedshapes-horizon-2425-profile2.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/object/unitedshapes-object-2425-top-base.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/object/unitedshapes-object-2425-detail1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/object/unitedshapes-object-2425-detail2.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/object/unitedshapes-object-2425-detail3.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/horizon/unitedshapes-horizon-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/object/unitedshapes-object-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/object/unitedshapes-object-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/object/unitedshapes-object-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/object/unitedshapes-object-2425-profile2.png)" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/transmission/unitedshapes-transmission-2425-top-base.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/transmission/unitedshapes-transmission-2425-detail1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/transmission/unitedshapes-transmission-2425-detail2.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/transmission/unitedshapes-transmission-2425-detail3.png" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/object/unitedshapes-object-2425-profile2.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/transmission/unitedshapes-transmission-2425-detail4.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/transmission/unitedshapes-transmission-2425-detail5.png" does not exist
 File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/transmission/unitedshapes-transmission-2425-profile1.png" does not exist
-File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/transmission/unitedshapes-transmission-2425-profile2.png)" does not exist
+File "/home/floris/PhpstormProjects/one-click-deploy/seed/images/united shapes/transmission/unitedshapes-transmission-2425-profile2.png" does not exist
