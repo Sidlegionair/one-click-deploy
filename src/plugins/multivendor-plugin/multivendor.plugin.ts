@@ -168,6 +168,505 @@ import { MollieController } from './controllers/mollie.controller';
             },
         });
 
+        // ------------------------------------------------------------
+        // 1) ADDING NEW "Product:" FIELDS (EXCLUDING 'brand' ALREADY ADDED)
+        // ------------------------------------------------------------
+        config.customFields.Product.push(
+            {
+                name: 'warranty',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Warranty (Years)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Number of years for product warranty' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Product Details',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'eanCode',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'EAN Code' }],
+                description: [{ languageCode: LanguageCode.en, value: 'European Article Number for the product' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Product Details',
+                    layout: 'horizontal',
+                },
+            },
+            // Remove 'shortDescriptionHtml' if it's mapped elsewhere
+            // Commented out to retain structured mapping
+            // {
+            //     name: 'shortDescriptionHtml',
+            //     type: 'rich-text',
+            //     label: [{ languageCode: LanguageCode.en, value: 'Short Description (HTML)' }],
+            //     description: [{ languageCode: LanguageCode.en, value: 'Short description in HTML format' }],
+            //     nullable: true,
+            //     public: true,
+            //     ui: {
+            //         component: 'rich-text-form-input',
+            //         tab: 'Descriptions',
+            //         layout: 'vertical',
+            //     },
+            // },
+            // Retain 'longDescriptionHtml' if it's part of structured mapping
+            // {
+            //     name: 'longDescriptionHtml',
+            //     type: 'rich-text',
+            //     label: [{ languageCode: LanguageCode.en, value: 'Long Description (HTML)' }],
+            //     description: [{ languageCode: LanguageCode.en, value: 'Long description in HTML format' }],
+            //     nullable: true,
+            //     public: true,
+            //     ui: {
+            //         component: 'rich-text-form-input',
+            //         tab: 'Descriptions',
+            //         layout: 'vertical',
+            //     },
+            // },
+            {
+                name: 'quote',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Quote' }],
+                description: [{ languageCode: LanguageCode.en, value: 'A highlight or testimonial quote for the product' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Quotes',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'quoteOwner',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Quote Owner' }],
+                description: [{ languageCode: LanguageCode.en, value: 'The individual or entity credited for the quote' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Quotes',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'boardCategory',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Board Category' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Category of the board (e.g., Snowboard, Surfboard)' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Specifications',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'terrain',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Terrain' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Suitable terrain for the board' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Specifications',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'camberProfile',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Camber Profile' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Type of camber profile' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Specifications',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'profile',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Profile' }],
+                description: [{ languageCode: LanguageCode.en, value: 'General shape or style of the board' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Specifications',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'baseProfile',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Base Profile' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Base shape or underside profile' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Specifications',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'rider',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Rider Type' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Ideal rider type or style' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Specifications',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'taperProfile',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Taper Profile' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Overall taper or shape difference between nose and tail' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Specifications',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'bindingSize',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Binding Size' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Recommended binding sizes' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Bindings',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'bindingMount',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Binding Mount' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Mounting system for bindings' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Bindings',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'edges',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Edges' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Type or style of edges' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Construction',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'sidewall',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Sidewall' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Sidewall construction details' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Construction',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'core',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Core' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Material or construction of the board’s core' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Construction',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'layup1',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Lay-up #1' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Lay-up detail #1' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Construction',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'layup2',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Lay-up #2' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Lay-up detail #2' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Construction',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'layup3',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Lay-up #3' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Lay-up detail #3' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Construction',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'boardbase',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Base' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Type or material used for the board base' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Construction',
+                    layout: 'horizontal',
+                },
+            }
+        );
+
+        // ------------------------------------------------------------
+        // 2) ADDING NEW "variant:" FIELDS (Including Rating Fields)
+        // ------------------------------------------------------------
+        config.customFields.ProductVariant.push(
+            {
+                name: 'lengthCm',
+                type: 'int',
+                label: [{ languageCode: LanguageCode.en, value: 'Length (cm)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Variant length in centimeters' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Specs',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'riderLengthMin',
+                type: 'int',
+                label: [{ languageCode: LanguageCode.en, value: 'Rider Length Min (cm)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Minimum recommended rider height in centimeters' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Specs',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'riderLengthMax',
+                type: 'string', // Allows for values like '195+'
+                label: [{ languageCode: LanguageCode.en, value: 'Rider Length Max (cm)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Maximum recommended rider height in centimeters (use "+" for open-ended)' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Specs',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'riderWeightMin',
+                type: 'int',
+                label: [{ languageCode: LanguageCode.en, value: 'Rider Weight Min (kg)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Minimum recommended rider weight in kilograms' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Specs',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'riderWeightMax',
+                type: 'string', // Allows for values like '95+'
+                label: [{ languageCode: LanguageCode.en, value: 'Rider Weight Max (kg)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Maximum recommended rider weight in kilograms (use "+" for open-ended)' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Specs',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'noseWidth',
+                type: 'float',
+                label: [{ languageCode: LanguageCode.en, value: 'Nose Width (cm)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Nose width in centimeters' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Geometry',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'waistWidth',
+                type: 'float',
+                label: [{ languageCode: LanguageCode.en, value: 'Waist Width (cm)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Waist width in centimeters' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Geometry',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'tailWidth',
+                type: 'float',
+                label: [{ languageCode: LanguageCode.en, value: 'Tail Width (cm)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Tail width in centimeters' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Geometry',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'taper',
+                type: 'float',
+                label: [{ languageCode: LanguageCode.en, value: 'Taper (cm)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Difference between nose & tail in centimeters' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Geometry',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'boardWidth',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Board Width (cm)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Overall board width in centimeters' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Geometry',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'bootLengthMax',
+                type: 'float',
+                label: [{ languageCode: LanguageCode.en, value: 'Boot Length Max (cm)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Maximum recommended boot size in centimeters' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Geometry',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'effectiveEdge',
+                type: 'float',
+                label: [{ languageCode: LanguageCode.en, value: 'Effective Edge (cm)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Effective edge length in centimeters' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Geometry',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'averageSidecutRadius',
+                type: 'string',
+                label: [{ languageCode: LanguageCode.en, value: 'Average Sidecut Radius (m)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Approximate sidecut radius in meters' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Geometry',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'setback',
+                type: 'float',
+                label: [{ languageCode: LanguageCode.en, value: 'Setback (cm)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Stance setback in centimeters' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Geometry',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'stanceMin',
+                type: 'float',
+                label: [{ languageCode: LanguageCode.en, value: 'Stance Min (cm)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Minimum stance width in centimeters' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Geometry',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'stanceMax',
+                type: 'float',
+                label: [{ languageCode: LanguageCode.en, value: 'Stance Max (cm)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Maximum stance width in centimeters' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Geometry',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'weightKg',
+                type: 'float',
+                label: [{ languageCode: LanguageCode.en, value: 'Weight (kg)' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Variant weight in kilograms' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Specs',
+                    layout: 'horizontal',
+                },
+            },
+            {
+                name: 'bindingSizeVariant',
+                type: 'string', // Avoid naming conflict with Product:bindingsize
+                label: [{ languageCode: LanguageCode.en, value: 'Variant Binding Size' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Binding size specific to this variant' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Bindings',
+                    layout: 'horizontal',
+                },
+            }
+        );
+
+
+
 
         const MAX_DESCRIPTION_TABS = 3;
         const MAX_PRODUCT_OPTION_TABS = 3;

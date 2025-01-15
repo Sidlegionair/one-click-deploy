@@ -1,311 +1,525 @@
-def process_row(row, facet_columns, is_main_product):
+import pandas as pd
+import re
+import argparse
+import sys
+
+def clean_html(raw_html):
+    if pd.isna(raw_html):
+        return ''
+    allowed_tags = [
+        '<b>', '</b>', '<i>', '</i>', '<strong>', '</strong>',
+        '<em>', '</em>', '<br>', '<ul>', '</ul>', '<li>', '</li>',
+        '<p>', '</p>', '<a>', '</a>', '<span>', '</span>',
+        '<h1>', '</h1>', '<h2>', '</h2>', '<h3>', '</h3>',
+        '<div>', '</div>', '<img>', '<hr>'
+    ]
+    cleanr = re.compile(r'<(?!/?(?:' + '|'.join(tag[1:-1] for tag in allowed_tags) + r')\b)[^>]*>')
+    return re.sub(cleanr, '', str(raw_html))
+
+def parse_rating(value):
     """
-    Process a single row and return a dictionary with necessary fields.
+    Parses a rating value into a float, handling percentages, fractional ratings (0.x), and edge cases.
+
+    Args:
+        value (Any): The input value to parse.
+
+    Returns:
+        float: Parsed rating value, scaled as needed, or NaN if parsing fails.
     """
-    # Clean HTML descriptions
-    product_short_desc = clean_html(row.get('product:shortdescription HTML', ''))
-    product_long_desc = clean_html(row.get('product:longdescription HTML', ''))
+    try:
+        # Handle None or empty values
+        if not value or pd.isna(value):
+            return float('nan')
 
-    # Extract brand
-    brand = str(row.get('product:brand', '')).strip()
+        # Handle numeric types (int, float)
+        if isinstance(value, (int, float)):
+            return value * 100 if 0 < value <= 1 else value
 
-    # Extract and handle price
-    price = row.get('price', 0)
-    if pd.isna(price):
-        price = 0
+        # Handle strings
+        if isinstance(value, str):
+            # Normalize string (remove unwanted characters, strip whitespace)
+            value = value.replace('%', '').strip()
 
-    # Extract and handle tax category
-    taxCategory = row.get('taxCategory', 'standard')
-    if pd.isna(taxCategory):
-        taxCategory = 'standard'
+            # Try converting directly to float
+            numeric_value = float(value)
 
-    # Extract and handle stock on hand
-    stockOnHand = row.get('stockOnHand', 100)
-    if pd.isna(stockOnHand):
-        stockOnHand = 100
+            # Scale fractional ratings (e.g., 0.7 -> 70)
+            return numeric_value * 100 if 0 < numeric_value <= 1 else numeric_value
 
-    # Process facets
-    facets = process_facets(row, facet_columns)
+        # If value type is unexpected, return NaN
+        return float('nan')
 
-    # Parse ratings (if applicable)
-    diff_rider_rating = parse_rating(row.get('variant:Riderlevel  ', ''))
-    diff_flex_rating = parse_rating(row.get('variant:Flex ', ''))
-    powder_rating = parse_rating(row.get('variant:Powder ', ''))
-    all_mountain_rating = parse_rating(row.get('variant:All mountain  ', ''))
-    freestyle_rating = parse_rating(row.get('variant:Freestyle ', ''))
+    except (ValueError, TypeError):
+        # Log the error for debugging (can be commented out in production)
+        print(f"Unable to parse rating value: {value}")
+        return float('nan')
 
-    # Extract assets from source data
-    assets = row.get('assets', '')
-    if pd.isna(assets):
-        assets = ''
+def should_tab_be_visible(tab_bars):
+    return any(bar['visible'] for bar in tab_bars)
 
-    # Extract variantAssets from source data
-    variant_assets = row.get('variantAssets', '')
-    if pd.isna(variant_assets):
-        variant_assets = ''
+def parse_and_process_bars(row, bar_info, tab_id=None):
+    bars = []
+    for i, (bar_name, source_key) in enumerate(bar_info, start=1):
+        # Fetch the raw value
+        raw_value = row.get(source_key, 'Missing Key')
+        print(f"Processing {bar_name}: Source Key='{source_key}', Raw Value='{raw_value}'")
 
-    # Extract variant front and back photos from source data
-    front_photo = row.get('variant:Carrouselasset: topPhoto', '')
-    if pd.isna(front_photo):
-        front_photo = ''
+        # Parse the rating
+        rating = parse_rating(raw_value)
+        print(f"Parsed Rating for {bar_name}: {rating}")
 
-    back_photo = row.get('variant:Carrouselasset: BasePhoto', '')
-    if pd.isna(back_photo):
-        back_photo = ''
+        visible = not pd.isna(rating) and rating > 0
 
-    # Construct the base dictionary with all required fields, including custom fields
-    base = {
-        'name': str(row.get('name', '')).strip() if is_main_product else '',
-        'slug': str(row.get('slug', '')).strip() if is_main_product else '',
-        'description': product_short_desc if is_main_product else '',
-        'variation:shortdescription': '' if is_main_product else '',  # Can be modified if needed
-        'assets': assets if is_main_product else '',
-        'facets': facets if is_main_product else '',
-        'optionGroups': '',   # Will be set only for main products
-        'optionValues': '',   # Will be set for both main products and variants
-        'sku': '',
-        'price': price,
-        'taxCategory': taxCategory,
-        'stockOnHand': stockOnHand,
-        'trackInventory': 'false' if is_main_product and pd.isna(row.get('trackInventory', False)) else 'true',
-        'variantAssets': variant_assets if is_main_product else '',
-        'variantFacets': '',  # Not used in your desired output
+        # Default labels
+        min_label = ''
+        max_label = ''
 
-        # Custom Fields
-        'variant:descriptionTab1Label': 'Long Description',
-        'variant:descriptionTab1Visible': 'true',
-        'variant:descriptionTab1Content': product_long_desc,
-        'product:brand': brand,
+        # Set tab-specific labels
+        if tab_id == 1:  # Tab 1 (Description Tab)
+            if i == 1:  # Bar 1
+                min_label = 'Beginner'
+                max_label = 'Expert'
+            elif i == 2:  # Bar 2 (Flex)
+                min_label = 'Soft'
+                max_label = 'Stiff'
 
-        # Tab 1 (Character)
-        'variant:optionTab1Label': 'Character',
-        'variant:optionTab1Visible': 'false',
+        bars.append({
+            'name': bar_name,
+            'visible': visible,
+            'rating': rating if visible else '',
+            'minLabel': min_label if visible else '',
+            'maxLabel': max_label if visible else '',
+            'min': '10',    # Preserved from original script
+            'max': '100',   # Preserved from original script
+        })
+    return bars, should_tab_be_visible(bars)
 
-        'variant:optionTab1Bar1Name': 'Difficulty rider level rating',
-        'variant:optionTab1Bar1Visible': 'true' if diff_rider_rating else 'false',
-        'variant:optionTab1Bar1Min': '10',
-        'variant:optionTab1Bar1Max': '100',
-        'variant:optionTab1Bar1MinLabel': '',
-        'variant:optionTab1Bar1MaxLabel': '',
-        'variant:optionTab1Bar1Rating': diff_rider_rating,
+def combine_option_groups_and_values(row, option_group_columns, option_value_columns):
+    """
+    Combine OptionGroups and OptionValues into separate pipe-separated strings.
+    Returns:
+        tuple: (optionGroups_str, optionValues_str)
+    """
+    option_groups = []
+    option_values = []
+    for group_col, value_col in zip(option_group_columns, option_value_columns):
+        group = row.get(group_col, '')
+        value = row.get(value_col, '')
+        if not pd.isna(group) and str(group).strip() != '':
+            option_groups.append(str(group).strip())
+        if not pd.isna(value) and str(value).strip() != '':
+            option_values.append(str(value).strip())
 
-        'variant:optionTab1Bar2Name': 'Difficulty flex rating',
-        'variant:optionTab1Bar2Visible': 'true' if diff_flex_rating else 'false',
-        'variant:optionTab1Bar2Min': '10',
-        'variant:optionTab1Bar2Max': '100',
-        'variant:optionTab1Bar2MinLabel': '',
-        'variant:optionTab1Bar2MaxLabel': '',
-        'variant:optionTab1Bar2Rating': diff_flex_rating,
+    # Combine with pipes
+    optionGroups_str = '|'.join(option_groups)
+    optionValues_str = '|'.join(option_values)
 
-        # Tab 2 (Terrain)
-        'variant:optionTab2Label': 'Terrain',
-        'variant:optionTab2Visible': 'false',
+    # Strip spaces around pipes
+    optionGroups_str = re.sub(r'\s*\|\s*', '|', optionGroups_str)
+    optionValues_str = re.sub(r'\s*\|\s*', '|', optionValues_str)
 
-        'variant:optionTab2Bar1Name': 'Powder',
-        'variant:optionTab2Bar1Visible': 'true' if powder_rating else 'false',
-        'variant:optionTab2Bar1Min': '10',
-        'variant:optionTab2Bar1Max': '100',
-        'variant:optionTab2Bar1MinLabel': '',
-        'variant:optionTab2Bar1MaxLabel': '',
-        'variant:optionTab2Bar1Rating': powder_rating,
+    # Debugging: Print combined option groups and values
+    print(f"Combined Option Groups: {optionGroups_str}")
+    print(f"Combined Option Values: {optionValues_str}")
 
-        'variant:optionTab2Bar2Name': 'All Mountain',
-        'variant:optionTab2Bar2Visible': 'true' if all_mountain_rating else 'false',
-        'variant:optionTab2Bar2Min': '10',
-        'variant:optionTab2Bar2Max': '100',
-        'variant:optionTab2Bar2MinLabel': '',
-        'variant:optionTab2Bar2MaxLabel': '',
-        'variant:optionTab2Bar2Rating': all_mountain_rating,
+    return optionGroups_str, optionValues_str
 
-        'variant:optionTab2Bar3Name': 'Freestyle',
-        'variant:optionTab2Bar3Visible': 'true' if freestyle_rating else 'false',
-        'variant:optionTab2Bar3Min': '10',
-        'variant:optionTab2Bar3Max': '100',
-        'variant:optionTab2Bar3MinLabel': '',
-        'variant:optionTab2Bar3MaxLabel': '',
-        'variant:optionTab2Bar3Rating': freestyle_rating,
+def process_facets(row):
+    """
+    Extract facets from the 'Facets' field and strip spaces around pipes.
+    E.g., "Facet1:Value1 | Facet2:Value2" -> "Facet1:Value1|Facet2:Value2"
+    """
+    facets = row.get('Facets', '')
+    if pd.isna(facets):
+        return ''
+    # Replace spaces around pipes
+    facets_clean = re.sub(r'\s*\|\s*', '|', str(facets).strip())
+    return facets_clean
 
-        # Front and Back Photos
-        'variant:frontPhoto': front_photo,
-        'variant:backPhoto': back_photo
-    }
+import pandas as pd
 
-    # Update Tab1 visibility based on Bars' visibility
-    if base['variant:optionTab1Bar1Visible'] == 'true' or base['variant:optionTab1Bar2Visible'] == 'true':
-        base['variant:optionTab1Visible'] = 'true'
+import re
+import pandas as pd
 
-    # Update Tab2 visibility based on Bars' visibility
-    if (base['variant:optionTab2Bar1Visible'] == 'true' or
-        base['variant:optionTab2Bar2Visible'] == 'true' or
-        base['variant:optionTab2Bar3Visible'] == 'true'):
-        base['variant:optionTab2Visible'] = 'true'
+def clean_and_convert(row, key, data_type):
+    """
+    Retrieves the value from the row, handles NaN, and converts it to the specified data type.
 
-    return base
+    Parameters:
+    - row: The pandas Series object representing the row.
+    - key: The column name.
+    - data_type: The expected data type ('int', 'float', 'bool', 'string', 'text', 'relation').
+
+    Returns:
+    - The cleaned and converted value.
+    """
+    value = row.get(key, None)
+    if pd.isna(value):
+        return ''
+
+    try:
+        if data_type == 'int':
+            # Remove non-numeric characters except negative signs and digits
+            value = re.sub(r'[^\d-]', '', str(value))
+            return int(value)
+        elif data_type == 'float':
+            if isinstance(value, str):
+                # Remove non-numeric characters except dots and minus signs
+                value = re.sub(r'[^\d.-]', '', value)
+            return float(value)
+        elif data_type == 'bool':
+            if isinstance(value, bool):
+                return value
+            if isinstance(value, (int, float)):
+                return bool(value)
+            if isinstance(value, str):
+                return value.strip().lower() in ['true', '1', 'yes']
+            return False
+        elif data_type in ['string', 'text']:
+            return str(value).strip()
+        elif data_type == 'relation':
+            # Ensure it's a valid UUID or identifier; assuming string representation
+            return str(value).strip()
+        else:
+            return str(value).strip()
+    except (ValueError, TypeError):
+        # Log the error and return empty string
+        print(f"Error converting field '{key}' with value '{value}' to type '{data_type}'")
+        return ''
 
 def convert_source_to_products(source_file, output_file):
-    """
-    Convert source Excel data to Vendure format.
-    """
     try:
-        # Load the source Excel file
         source_data = pd.read_excel(source_file)
-        logging.info("Source data loaded successfully.")
+        print("Source data loaded successfully.")
     except Exception as e:
-        logging.error(f"Error loading source file: {e}")
-        sys.exit(1)
+        print(f"Error loading source file: {e}")
+        return
 
-    # Identify facet columns (assuming they start with 'facets.')
-    facet_columns = [col for col in source_data.columns if col.startswith('facets.')]
+    # Strip only leading/trailing whitespace without removing internal spaces
+    source_data.columns = source_data.columns.str.strip()
 
-    # Identify all option group and option value column pairs
-    option_columns = get_option_columns(source_data.columns.tolist())
-
-    if not option_columns:
-        logging.warning("No option groups found.")
-
-    # Define the order and names of output columns
-    output_columns = [
-        'name', 'slug', 'description', 'variation:shortdescription', 'assets', 'facets',
-        'optionGroups', 'optionValues', 'sku', 'price', 'taxCategory',
-        'stockOnHand', 'trackInventory', 'variantAssets', 'variantFacets',
-        'variant:descriptionTab1Label', 'variant:descriptionTab1Visible', 'variant:descriptionTab1Content', 'product:brand',
-        'variant:optionTab1Label', 'variant:optionTab1Visible', 'variant:optionTab1Bar1Name', 'variant:optionTab1Bar1Visible',
-        'variant:optionTab1Bar1Min', 'variant:optionTab1Bar1Max', 'variant:optionTab1Bar1MinLabel', 'variant:optionTab1Bar1MaxLabel',
-        'variant:optionTab1Bar1Rating', 'variant:optionTab1Bar2Name', 'variant:optionTab1Bar2Visible', 'variant:optionTab1Bar2Min',
-        'variant:optionTab1Bar2Max', 'variant:optionTab1Bar2MinLabel', 'variant:optionTab1Bar2MaxLabel', 'variant:optionTab1Bar2Rating',
-        'variant:optionTab2Label', 'variant:optionTab2Visible',
-        'variant:optionTab2Bar1Name','variant:optionTab2Bar1Visible','variant:optionTab2Bar1MinLabel','variant:optionTab2Bar1MaxLabel',
-        'variant:optionTab2Bar1Min','variant:optionTab2Bar1Max','variant:optionTab2Bar1Rating',
-        'variant:optionTab2Bar2Name','variant:optionTab2Bar2Visible','variant:optionTab2Bar2MinLabel','variant:optionTab2Bar2MaxLabel',
-        'variant:optionTab2Bar2Min','variant:optionTab2Bar2Max','variant:optionTab2Bar2Rating',
-        'variant:optionTab2Bar3Name','variant:optionTab2Bar3Visible','variant:optionTab2Bar3MinLabel','variant:optionTab2Bar3MaxLabel',
-        'variant:optionTab2Bar3Min','variant:optionTab2Bar3Max','variant:optionTab2Bar3Rating',
-        'variant:frontPhoto', 'variant:backPhoto'
+    # Define the necessary columns based on Vendure config with appropriate prefixes
+    columns = [
+        'name',                      # No prefix
+        'slug',                      # No prefix
+        'description',               # No prefix
+        'assets',                    # No prefix
+        'facets',                    # No prefix
+        'optionGroups',              # No prefix
+        'optionValues',              # No prefix
+        'sku',
+        'price',
+        'taxCategory',
+        'stockOnHand',
+        'trackInventory',
+        'variantAssets',
+        'variantFacets',
+        'product:brand',             # Prefixed
+        'product:warranty',
+        'product:eanCode',
+        'product:quote',
+        'product:quoteOwner',
+        'product:boardCategory',
+        'product:terrain',
+        'product:camberProfile',
+        'product:profile',
+        'product:baseProfile',
+        'product:rider',
+        'product:taperProfile',
+        'product:bindingSize',
+        'product:bindingMount',
+        'product:edges',
+        'product:sidewall',
+        'product:core',
+        'product:layup1',
+        'product:layup2',
+        'product:layup3',
+        'product:boardbase',
+        'variant:descriptionTab1Label',
+        'variant:descriptionTab1Visible',
+        'variant:descriptionTab1Content',
+        'variant:shortdescription',   # Added to columns
+        'variant:optionTab1Label',
+        'variant:optionTab1Visible',
+        'variant:optionTab1Bar1Name',
+        'variant:optionTab1Bar1Visible',
+        'variant:optionTab1Bar1Min',
+        'variant:optionTab1Bar1Max',
+        'variant:optionTab1Bar1MinLabel',
+        'variant:optionTab1Bar1MaxLabel',
+        'variant:optionTab1Bar1Rating',
+        'variant:optionTab1Bar2Name',
+        'variant:optionTab1Bar2Visible',
+        'variant:optionTab1Bar2Min',
+        'variant:optionTab1Bar2Max',
+        'variant:optionTab1Bar2MinLabel',
+        'variant:optionTab1Bar2MaxLabel',
+        'variant:optionTab1Bar2Rating',
+        'variant:optionTab2Label',
+        'variant:optionTab2Visible',
+        'variant:optionTab2Bar1Name',
+        'variant:optionTab2Bar1Visible',
+        'variant:optionTab2Bar1MinLabel',
+        'variant:optionTab2Bar1MaxLabel',
+        'variant:optionTab2Bar1Rating',
+        'variant:optionTab2Bar2Name',      # New Field
+        'variant:optionTab2Bar2Visible',   # New Field
+        'variant:optionTab2Bar2MinLabel',  # New Field
+        'variant:optionTab2Bar2MaxLabel',  # New Field
+        'variant:optionTab2Bar2Rating',    # New Field
+        'variant:optionTab2Bar3Name',      # New Field
+        'variant:optionTab2Bar3Visible',   # New Field
+        'variant:optionTab2Bar3MinLabel',  # New Field
+        'variant:optionTab2Bar3MaxLabel',  # New Field
+        'variant:optionTab2Bar3Rating',    # New Field
+        'variant:noseWidth',
+        'variant:waistWidth',
+        'variant:tailWidth',
+        'variant:taper',
+        'variant:boardWidth',
+        'variant:bootLengthMax',
+        'variant:effectiveEdge',
+        'variant:averageSidecutRadius',
+        'variant:setback',
+        'variant:stanceMin',
+        'variant:stanceMax',
+        'variant:weightKg',
+        'variant:bindingSizeVariant',
+        # Add variant option values
+#         'variant:optionValue1',  # Corresponds to the first option group
+#         'variant:optionValue2',  # Corresponds to the second option group
+        # Add more if there are more option groups
+        'variant:frontPhoto',
+        'variant:backPhoto',
     ]
 
-    converted_data = []
-    sku_set = set()  # To track unique SKUs
-    current_product_slug = None  # To track the current main product's slug
+    # Identify option group and value columns (assuming they start with 'optionGroups #1', 'optionValues #1', etc.)
+    option_group_columns = sorted(
+        [col for col in source_data.columns if re.match(r'option(?:\s*Groups?)\s*#\d+', col, re.IGNORECASE)],
+        key=lambda x: int(re.search(r'#(\d+)', x).group(1))
+    )
+    option_value_columns = sorted(
+        [col for col in source_data.columns if re.match(r'option(?:\s*Values?)\s*#\d+', col, re.IGNORECASE)],
+        key=lambda x: int(re.search(r'#(\d+)', x).group(1))
+    )
 
-    # Group the data by 'slug' to ensure main products and their variants are processed together
-    grouped = source_data.groupby('slug', dropna=False)
+    # Debugging: Print identified option group and value columns
+    print("Identified Option Group Columns:", option_group_columns)
+    print("Identified Option Value Columns:", option_value_columns)
 
-    for slug, group in grouped:
-        # Reset current_product_slug for each group
-        if pd.isna(slug):
-            slug = ''
-        current_product_slug = str(slug).strip()
+    # Determine the maximum number of option groups to dynamically add variant:optionValueX fields
+    max_option_groups = max(len(option_group_columns), len(option_value_columns))
 
-        # Identify main product (assuming main product has non-empty 'name')
-        main_product = group[group['name'].notna() & (group['name'].str.strip() != '')]
-        if main_product.empty:
-            logging.warning(f"No main product found for slug '{slug}'. Skipping this group.")
-            continue
-        main_product = main_product.iloc[0]
+    # Dynamically add 'variant:optionValueX' to columns if needed
+    for i in range(3, max_option_groups + 1):
+        columns.append(f'variant:optionValue{i}')
 
-        # Process main product row
-        main_product_info = process_row(main_product, facet_columns, is_main_product=True)
+    # Initialize a list to collect all rows
+    all_rows = []
 
-        # Assign optionGroups and optionValues for main product
-        option_groups_list = []
-        option_values_list = []
-        for group_col, value_col in option_columns:
-            option_group = main_product.get(group_col, '')
-            if pd.isna(option_group) or str(option_group).strip() == '':
-                continue
-            option_group = str(option_group).strip()
-            option_groups_list.append(option_group)
+    # Group the source data by 'slug' to handle products with multiple variants
+    grouped_data = source_data.groupby('slug')
 
-            option_values = main_product.get(value_col, '')
-            if pd.isna(option_values) or str(option_values).strip() == '':
-                continue
-            # Split multiple option values if present (assuming comma-separated)
-            option_values = [str(val).strip() for val in str(option_values).split(',') if str(val).strip() != '']
-            option_values_joined = '|'.join(option_values)
-            option_values_list.append(option_values_joined)
+    for slug, group in grouped_data:
+        first_row = True
+        for _, row in group.iterrows():
+            new_row = {}
 
-        main_product_info['optionGroups'] = '|'.join(option_groups_list) if option_groups_list else ''
-        main_product_info['optionValues'] = '|'.join(option_values_list) if option_values_list else ''
-
-        # Assign SKU for main product
-        sku = main_product.get('sku', '')
-        if pd.isna(sku) or str(sku).strip().lower() == 'nan' or str(sku).strip() == '':
-            # Generate SKU based on slug
-            sku = f"{current_product_slug}_default" if pd.notna(slug) else f"SKU_{len(sku_set)+1}"
-        else:
-            sku = str(sku).strip()
-
-        # Ensure SKU uniqueness
-        original_sku = sku
-        counter = 1
-        while sku in sku_set:
-            sku = f"{original_sku}_{counter}"
-            counter += 1
-        sku_set.add(sku)
-        main_product_info['sku'] = sku
-
-        # Append main product to converted_data
-        converted_data.append(main_product_info)
-
-        # Process variant rows (exclude main product)
-        variant_rows = group.drop(main_product.name)
-        for idx, variant in variant_rows.iterrows():
-            # Process variant row
-            variant_info = process_row(variant, facet_columns, is_main_product=False)
-
-            # Assign optionValues for variant
-            variant_option_values = []
-            for _, value_col in option_columns:
-                option_value = variant.get(value_col, '')
-                if pd.isna(option_value) or option_value == '':
-                    continue
-                option_value = str(option_value).strip()
-                variant_option_values.append(option_value)
-            variant_info['optionValues'] = '|'.join(variant_option_values) if variant_option_values else ''
-
-            # Assign SKU for variant
-            variant_sku = variant.get('sku', '')
-            if pd.isna(variant_sku) or str(variant_sku).strip().lower() == 'nan' or str(variant_sku).strip() == '':
-                # Generate SKU based on slug and optionValues
-                if variant_option_values:
-                    sanitized_options = '_'.join(re.sub(r'[^A-Za-z0-9_]+', '', val.replace(' ', '_')) for val in variant_option_values)
-                    variant_sku = f"{slug}_{sanitized_options}" if pd.notna(slug) else f"SKU_{len(sku_set)+1}"
-                else:
-                    variant_sku = f"{slug}_variant" if pd.notna(slug) else f"SKU_{len(sku_set)+1}"
+            if first_row:
+                # Assign product-level fields
+                new_row['name'] = clean_and_convert(row, 'name', 'string')
+                new_row['slug'] = clean_and_convert(row, 'slug', 'string')
+                new_row['description'] = clean_html(row.get('product:shortdescription HTML', ''))
+                new_row['assets'] = clean_and_convert(row, 'assets', 'string')
+                new_row['facets'] = process_facets(row)
             else:
-                variant_sku = str(variant_sku).strip()
+                # For subsequent variants, leave product-level fields empty
+                new_row['name'] = ''
+                new_row['slug'] = ''
+                new_row['description'] = ''
+                new_row['assets'] = ''
+                new_row['facets'] = ''
 
-            # Ensure SKU uniqueness
-            original_variant_sku = variant_sku
-            counter = 1
-            while variant_sku in sku_set:
-                variant_sku = f"{original_variant_sku}_{counter}"
-                counter += 1
-            sku_set.add(variant_sku)
-            variant_info['sku'] = variant_sku
+            # General product fields (applied to all variants)
+            new_row['sku'] = clean_and_convert(row, 'sku', 'string')
+            new_row['price'] = clean_and_convert(row, 'price', 'float')
+            new_row['taxCategory'] = clean_and_convert(row, 'taxCategory', 'string')
+            new_row['stockOnHand'] = 999999
+            new_row['trackInventory'] = True
+            new_row['variantAssets'] = clean_and_convert(row, 'variantAssets', 'string')
+            new_row['variantFacets'] = clean_and_convert(row, 'variantFacets', 'string')
+            new_row['variant:frontPhoto'] = clean_and_convert(row, 'Carrouselasset: topPhoto', 'relation')
+            new_row['variant:backPhoto'] = clean_and_convert(row, 'Carrouselasset: BasePhoto', 'relation')
 
-            # For variants, ensure main product fields are empty
-            if not is_main_product:
-                variant_info['name'] = ''
-                variant_info['slug'] = ''
-                variant_info['description'] = ''
-                variant_info['assets'] = ''
-                variant_info['facets'] = ''
-                variant_info['optionGroups'] = ''
+            # Preserve 'variant:shortdescription' logic
+            new_row['variant:shortdescription'] = clean_html(row.get('product:shortdescription HTML', ''))
 
-            # Append variant to converted_data
-            converted_data.append(variant_info)
+            # Combine OptionGroups and OptionValues with a pipe
+            optionGroups_str, optionValues_str = combine_option_groups_and_values(row, option_group_columns, option_value_columns)
+            new_row['optionGroups'] = optionGroups_str if first_row else ''
+            new_row['optionValues'] = optionValues_str
 
-    # Create a DataFrame from the converted data
-    df = pd.DataFrame(converted_data, columns=output_columns)
+            # Debugging: Check if optionGroups and optionValues are non-empty
+            if first_row:
+                if not new_row['optionGroups']:
+                    print(f"Warning: Product '{slug}' has empty 'optionGroups'. Please check the source data.")
+                if not new_row['optionValues']:
+                    print(f"Warning: Product '{slug}' has empty 'optionValues'. Please check the source data.")
 
-    # Replace True/False with 'true'/'false' and handle 'nan' as empty strings
-    df = df.replace({True:'true', False:'false', 'nan':''}, regex=True)
+            # Process description tabs
+            new_row['variant:descriptionTab1Label'] = 'Description'
+            new_row['variant:descriptionTab1Visible'] = True
+            new_row['variant:descriptionTab1Content'] = clean_html(row.get('product:longdescription HTML', ''))
+
+
+            new_row['variant:noseWidth'] = clean_and_convert(row, 'variant:nose width(cm)', 'float')
+            new_row['variant:waistWidth'] = clean_and_convert(row, 'variant:waist width(cm)', 'float')
+            new_row['variant:tailWidth'] = clean_and_convert(row, 'variant:tail width(cm)', 'float')
+            new_row['variant:taper'] = clean_and_convert(row, 'variant: Taper(cm)', 'float')
+            new_row['variant:boardWidth'] = clean_and_convert(row, 'variant:boardwidth(cm)', 'string')
+            new_row['variant:bootLengthMax'] = clean_and_convert(row, 'variant:bootlength-max(cm)', 'float')
+            new_row['variant:effectiveEdge'] = clean_and_convert(row, 'variant:effective edge(cm)', 'float')
+            new_row['variant:averageSidecutRadius'] = clean_and_convert(row, 'variant:average sidecut radius(m)', 'string')
+            new_row['variant:setback'] = clean_and_convert(row, 'variant: setback(cm)', 'float')
+            new_row['variant:stanceMin'] = clean_and_convert(row, 'variant: stance-min(cm)', 'float')
+            new_row['variant:stanceMax'] = clean_and_convert(row, 'variant: Stance-max(cm)', 'float')
+            new_row['variant:weightKg'] = clean_and_convert(row, 'variant: Weight(kg)', 'float')
+            new_row['variant:bindingSizeVariant'] = clean_and_convert(row, 'variant:bindingsize', 'string')
+
+
+            if first_row:
+                new_row['product:brand'] = clean_and_convert(row, 'product:Brand', 'string')
+                new_row['product:warranty'] = clean_and_convert(row, 'product:warranty', 'string')
+                new_row['product:eanCode'] = clean_and_convert(row, 'Product:EAN code', 'string')
+                new_row['product:quote'] = clean_and_convert(row, 'product:quote', 'string')
+                new_row['product:quoteOwner'] = clean_and_convert(row, 'product:quote-owner', 'string')
+                new_row['product:boardCategory'] = clean_and_convert(row, 'Product:boardcategory', 'string')
+                new_row['product:terrain'] = clean_and_convert(row, 'Product:terrain', 'string')
+                new_row['product:camberProfile'] = clean_and_convert(row, 'Product:camberprofile', 'string')
+                new_row['product:profile'] = clean_and_convert(row, 'Product:profile', 'string')
+                new_row['product:baseProfile'] = clean_and_convert(row, 'Product:baseprofile', 'string')
+                new_row['product:rider'] = clean_and_convert(row, 'Product:rider', 'string')
+                new_row['product:taperProfile'] = clean_and_convert(row, 'Product: Taper profile', 'string')
+                new_row['product:bindingSize'] = clean_and_convert(row, 'Product:bindingsize', 'string')
+                new_row['product:bindingMount'] = clean_and_convert(row, 'Product: bindingmount', 'string')
+                new_row['product:edges'] = clean_and_convert(row, 'Product: edges', 'string')
+                new_row['product:sidewall'] = clean_and_convert(row, 'Product: Sidewall', 'string')
+                new_row['product:core'] = clean_and_convert(row, 'Product: Core', 'string')
+                new_row['product:layup1'] = clean_and_convert(row, 'Product: lay-up', 'string')
+                new_row['product:layup2'] = clean_and_convert(row, 'Product: lay-up', 'string')
+                new_row['product:layup3'] = clean_and_convert(row, 'Product: lay-up', 'string')
+                new_row['product:boardbase'] = clean_and_convert(row, 'Product: base', 'string')
+            else:
+                new_row['product:brand'] = ''
+                new_row['product:warranty'] = ''
+                new_row['product:eanCode'] = ''
+                new_row['product:quote'] = ''
+                new_row['product:quoteOwner'] = ''
+                new_row['product:boardCategory'] = ''
+                new_row['product:terrain'] = ''
+                new_row['product:camberProfile'] = ''
+                new_row['product:profile'] = ''
+                new_row['product:baseProfile'] = ''
+                new_row['product:rider'] = ''
+                new_row['product:taperProfile'] = ''
+                new_row['product:bindingSize'] = ''
+                new_row['product:bindingMount'] = ''
+                new_row['product:edges'] = ''
+                new_row['product:sidewall'] = ''
+                new_row['product:core'] = ''
+                new_row['product:layup1'] = ''
+                new_row['product:layup2'] = ''
+                new_row['product:layup3'] = ''
+                new_row['product:boardbase'] = ''
+
+
+            # Process OptionTab1 bars
+            tab1_bars_info = [
+                ('Difficulty rider level rating', 'variant:Riderlevel'),
+                ('Difficulty flex rating', 'variant:Flex'),
+            ]
+            tab1_bars, tab1_visible = parse_and_process_bars(row, tab1_bars_info, tab_id=1)
+            new_row['variant:optionTab1Label'] = 'Rider level'
+            new_row['variant:optionTab1Visible'] = str(tab1_visible)
+            for i, bar in enumerate(tab1_bars, start=1):
+                new_row[f'variant:optionTab1Bar{i}Name'] = bar['name']
+                new_row[f'variant:optionTab1Bar{i}Visible'] = str(bar['visible'])
+                new_row[f'variant:optionTab1Bar{i}MinLabel'] = bar['minLabel']
+                new_row[f'variant:optionTab1Bar{i}MaxLabel'] = bar['maxLabel']
+                new_row[f'variant:optionTab1Bar{i}Min'] = bar['min']
+                new_row[f'variant:optionTab1Bar{i}Max'] = bar['max']
+                new_row[f'variant:optionTab1Bar{i}Rating'] = bar['rating']
+
+            # Process OptionTab2 bars
+            tab2_bars_info = [
+                ('Powder', 'variant:Powder'),
+                ('All Mountain', 'variant:All mountain'),
+                ('Resort', 'variant:Freestyle'),
+            ]
+            tab2_bars, tab2_visible = parse_and_process_bars(row, tab2_bars_info, tab_id=2)
+            new_row['variant:optionTab2Label'] = 'Terrain'
+            new_row['variant:optionTab2Visible'] = str(tab2_visible)
+            for i, bar in enumerate(tab2_bars, start=1):
+                new_row[f'variant:optionTab2Bar{i}Name'] = bar['name']
+                new_row[f'variant:optionTab2Bar{i}Visible'] = str(bar['visible'])
+                new_row[f'variant:optionTab2Bar{i}MinLabel'] = bar['minLabel']
+                new_row[f'variant:optionTab2Bar{i}MaxLabel'] = bar['maxLabel']
+                new_row[f'variant:optionTab2Bar{i}Rating'] = bar['rating']
+
+            # Add rows to the list
+            all_rows.append(new_row)
+
+            # Mark that the first row has been processed
+            first_row = False
+
+    # Create DataFrame from all collected rows
+    converted_data = pd.DataFrame(all_rows, columns=columns)
+
+    # Debugging: Preview descriptions
+    print("Sample 'description' and 'variant:descriptionTab1Content' data:")
+    print(converted_data[['slug', 'description', 'variant:descriptionTab1Content']].head())
+
+    # Optional: Fill NaN with empty strings to avoid issues in CSV
+    converted_data.fillna('', inplace=True)
 
     try:
-        # Save the DataFrame to a CSV file
-        df.to_csv(output_file, index=False)
-        logging.info(f"File successfully saved to '{output_file}'.")
+        converted_data.to_csv(output_file, index=False)
+        print(f"File saved to {output_file}")
     except Exception as e:
-        logging.error(f"Error saving output file: {e}")
+        print(f"Error saving output file: {e}")
+
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description='Map PIM Excel data to CSV format for Vendure import.'
+    )
+    parser.add_argument(
+        'input_file',
+        type=str,
+        help='Path to the input Excel file (e.g., master.xlsx)'
+    )
+    parser.add_argument(
+        'output_file',
+        type=str,
+        help='Path to the output CSV file (e.g., mapped.csv)'
+    )
+    return parser.parse_args()
+
+def main():
+    args = parse_arguments()
+
+    # Validate input file extension
+    if not args.input_file.lower().endswith(('.xlsx', '.xls')):
+        print("Error: Input file must be an Excel file with extension .xlsx or .xls")
         sys.exit(1)
+
+    # Validate output file extension
+    if not args.output_file.lower().endswith('.csv'):
+        print("Error: Output file must have a .csv extension")
+        sys.exit(1)
+
+    convert_source_to_products(args.input_file, args.output_file)
+
+if __name__ == '__main__':
+    main()
