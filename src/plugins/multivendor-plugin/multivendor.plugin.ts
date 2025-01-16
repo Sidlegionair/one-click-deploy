@@ -496,6 +496,18 @@ import { MollieController } from './controllers/mollie.controller';
                 },
             },
             {
+                name: 'flex',
+                type: 'string', // Allows for values like '95+'
+                label: [{ languageCode: LanguageCode.en, value: 'Flex rating' }],
+                description: [{ languageCode: LanguageCode.en, value: 'Flex rating for the board' }],
+                nullable: true,
+                public: true,
+                ui: {
+                    tab: 'Variant Specs',
+                    layout: 'horizontal',
+                },
+            },
+            {
                 name: 'riderWeightMax',
                 type: 'string', // Allows for values like '95+'
                 label: [{ languageCode: LanguageCode.en, value: 'Rider Weight Max (kg)' }],

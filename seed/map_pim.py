@@ -381,6 +381,7 @@ def convert_source_to_products(source_file, output_file):
             new_row['variant:effectiveEdge'] = clean_and_convert(row, 'variant:effective edge(cm)', 'float')
             new_row['variant:averageSidecutRadius'] = clean_and_convert(row, 'variant:average sidecut radius(m)', 'string')
             new_row['variant:setback'] = clean_and_convert(row, 'variant: setback(cm)', 'float')
+            new_row['variant:flex'] = clean_and_convert(row, 'variant:flex', 'string')
             new_row['variant:stanceMin'] = clean_and_convert(row, 'variant: stance-min(cm)', 'float')
             new_row['variant:stanceMax'] = clean_and_convert(row, 'variant: Stance-max(cm)', 'float')
             new_row['variant:weightKg'] = clean_and_convert(row, 'variant: Weight(kg)', 'float')
