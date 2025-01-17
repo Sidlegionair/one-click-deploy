@@ -212,16 +212,16 @@ async function importProducts(
 
     // Assuming that Vendure's populate function can be used here
     // Adjust the path to initial-data.json as per your project structure
-    // const initialDataPath = path.resolve('./seed/initial-data.json');
-    //
-    // if (!fs.existsSync(initialDataPath)) {
-    //     throw new Error(`Initial data JSON not found at path: ${initialDataPath}`);
-    // }
+    const initialDataPath = path.resolve('./seed/initial-data.json');
+
+    if (!fs.existsSync(initialDataPath)) {
+        throw new Error(`Initial data JSON not found at path: ${initialDataPath}`);
+    }
 
     // Execute the populate function to import products using the existing app instance
     await populate(
         async () => app, // Use the existing app instance
-        require('@vendure/create/assets/initial-data.json'),
+        require(initialDataPath),
         tempCsvPath
     )
         .then(() => {
