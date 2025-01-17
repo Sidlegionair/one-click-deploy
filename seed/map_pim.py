@@ -168,8 +168,9 @@ def clean_and_convert(row, key, data_type):
             if isinstance(value, str):
                 # Remove non-numeric characters except dots and minus signs
                 value = re.sub(r'[^\d.-]', '', value)
-            # Use Decimal for better precision
-            return float(Decimal(value))
+            # Use Decimal for precise handling
+            value = Decimal(value)
+            return float(value.quantize(Decimal('0.00001')))  # Limit to 5 decimal places
         elif data_type == 'bool':
             if isinstance(value, bool):
                 return value
@@ -189,6 +190,7 @@ def clean_and_convert(row, key, data_type):
         # Log the error and return empty string
         print(f"Error converting field '{key}' with value '{value}' to type '{data_type}'")
         return ''
+
 
 def convert_source_to_products(source_file, output_file):
     try:
