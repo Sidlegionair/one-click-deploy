@@ -141,6 +141,8 @@ import pandas as pd
 import re
 import pandas as pd
 
+from decimal import Decimal, InvalidOperation
+
 def clean_and_convert(row, key, data_type):
     """
     Retrieves the value from the row, handles NaN, and converts it to the specified data type.
@@ -166,7 +168,8 @@ def clean_and_convert(row, key, data_type):
             if isinstance(value, str):
                 # Remove non-numeric characters except dots and minus signs
                 value = re.sub(r'[^\d.-]', '', value)
-            return float(value)
+            # Use Decimal for better precision
+            return float(Decimal(value))
         elif data_type == 'bool':
             if isinstance(value, bool):
                 return value
@@ -182,7 +185,7 @@ def clean_and_convert(row, key, data_type):
             return str(value).strip()
         else:
             return str(value).strip()
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, InvalidOperation):
         # Log the error and return empty string
         print(f"Error converting field '{key}' with value '{value}' to type '{data_type}'")
         return ''
@@ -203,6 +206,8 @@ def convert_source_to_products(source_file, output_file):
         'name',                      # No prefix
         'slug',                      # No prefix
         'description',               # No prefix
+#         'description:en',               # No prefix
+#         'description:nl',
         'assets',                    # No prefix
         'facets',                    # No prefix
         'optionGroups',              # No prefix
@@ -238,7 +243,11 @@ def convert_source_to_products(source_file, output_file):
         'variant:descriptionTab1Label',
         'variant:descriptionTab1Visible',
         'variant:descriptionTab1Content',
+#         'variant:descriptionTab1Content:nl',
+#         'variant:descriptionTab1Content:en',
         'variant:shortdescription',   # Added to columns
+#         'variant:shortdescription:nl',   # Added to columns
+#         'variant:shortdescription:en',   # Added to columns
         'variant:optionTab1Label',
         'variant:optionTab1Visible',
         'variant:optionTab1Bar1Name',
@@ -285,6 +294,10 @@ def convert_source_to_products(source_file, output_file):
         'variant:stanceMax',
         'variant:weightKg',
         'variant:bindingSizeVariant',
+        'variant:riderLengthMin',
+        'variant:riderLengthMax',
+        'variant:riderWeightMin',
+        'variant:riderWeightMax',
         # Add variant option values
 #         'variant:optionValue1',  # Corresponds to the first option group
 #         'variant:optionValue2',  # Corresponds to the second option group
@@ -329,7 +342,9 @@ def convert_source_to_products(source_file, output_file):
                 # Assign product-level fields
                 new_row['name'] = clean_and_convert(row, 'name', 'string')
                 new_row['slug'] = clean_and_convert(row, 'slug', 'string')
-                new_row['description'] = clean_html(row.get('product:shortdescription HTML', ''))
+                new_row['description'] = clean_html(row.get('product:shortdescription HTML:en', ''))
+#                 new_row['description:en'] = clean_html(row.get('product:shortdescription HTML:en', ''))
+#                 new_row['description:nl'] = clean_html(row.get('product:shortdescription HTML:nl', ''))
                 new_row['assets'] = clean_and_convert(row, 'assets', 'string')
                 new_row['facets'] = process_facets(row)
             else:
@@ -337,6 +352,8 @@ def convert_source_to_products(source_file, output_file):
                 new_row['name'] = ''
                 new_row['slug'] = ''
                 new_row['description'] = ''
+#                 new_row['description:en'] = ''
+#                 new_row['description:nl'] = ''
                 new_row['assets'] = ''
                 new_row['facets'] = ''
 
@@ -352,7 +369,9 @@ def convert_source_to_products(source_file, output_file):
             new_row['variant:backPhoto'] = clean_and_convert(row, 'Carrouselasset: BasePhoto', 'relation')
 
             # Preserve 'variant:shortdescription' logic
-            new_row['variant:shortdescription'] = clean_html(row.get('product:shortdescription HTML', ''))
+            new_row['variant:shortdescription'] = clean_html(row.get('product:shortdescription HTML:en', ''))
+#             new_row['variant:shortdescription:nl'] = clean_html(row.get('product:shortdescription HTML:nl', ''))
+#             new_row['variant:shortdescription:en'] = clean_html(row.get('product:shortdescription HTML:en', ''))
 
             # Combine OptionGroups and OptionValues with a pipe
             optionGroups_str, optionValues_str = combine_option_groups_and_values(row, option_group_columns, option_value_columns)
@@ -369,7 +388,9 @@ def convert_source_to_products(source_file, output_file):
             # Process description tabs
             new_row['variant:descriptionTab1Label'] = 'Description'
             new_row['variant:descriptionTab1Visible'] = True
-            new_row['variant:descriptionTab1Content'] = clean_html(row.get('product:longdescription HTML', ''))
+            new_row['variant:descriptionTab1Content'] = clean_html(row.get('product:longdescription HTML:en', ''))
+#             new_row['variant:descriptionTab1Content:nl'] = clean_html(row.get('product:longdescription HTML:nl', ''))
+#             new_row['variant:descriptionTab1Content:en'] = clean_html(row.get('product:longdescription HTML:en', ''))
 
 
             new_row['variant:noseWidth'] = clean_and_convert(row, 'variant:nose width(cm)', 'float')
@@ -386,6 +407,10 @@ def convert_source_to_products(source_file, output_file):
             new_row['variant:stanceMax'] = clean_and_convert(row, 'variant: Stance-max(cm)', 'float')
             new_row['variant:weightKg'] = clean_and_convert(row, 'variant: Weight(kg)', 'float')
             new_row['variant:bindingSizeVariant'] = clean_and_convert(row, 'variant:bindingsize', 'string')
+            new_row['variant:riderLengthMin'] = clean_and_convert(row, 'variant:riderlength-min', 'float')
+            new_row['variant:riderLengthMax'] = clean_and_convert(row, 'variant:riderlength-max', 'float')
+            new_row['variant:riderWeightMin'] = clean_and_convert(row, 'variant:riderlength-max', 'float')
+            new_row['variant:riderWeightMax'] = clean_and_convert(row, 'variant:riderlength-max', 'float')
 
 
             if first_row:

@@ -461,7 +461,7 @@ import { MollieController } from './controllers/mollie.controller';
             },
             {
                 name: 'riderLengthMin',
-                type: 'int',
+                type: 'float',
                 label: [{ languageCode: LanguageCode.en, value: 'Rider Length Min (cm)' }],
                 description: [{ languageCode: LanguageCode.en, value: 'Minimum recommended rider height in centimeters' }],
                 nullable: true,
@@ -473,7 +473,7 @@ import { MollieController } from './controllers/mollie.controller';
             },
             {
                 name: 'riderLengthMax',
-                type: 'string', // Allows for values like '195+'
+                type: 'float', // Allows for values like '195+'
                 label: [{ languageCode: LanguageCode.en, value: 'Rider Length Max (cm)' }],
                 description: [{ languageCode: LanguageCode.en, value: 'Maximum recommended rider height in centimeters (use "+" for open-ended)' }],
                 nullable: true,
@@ -485,7 +485,7 @@ import { MollieController } from './controllers/mollie.controller';
             },
             {
                 name: 'riderWeightMin',
-                type: 'int',
+                type: 'float',
                 label: [{ languageCode: LanguageCode.en, value: 'Rider Weight Min (kg)' }],
                 description: [{ languageCode: LanguageCode.en, value: 'Minimum recommended rider weight in kilograms' }],
                 nullable: true,
@@ -497,7 +497,7 @@ import { MollieController } from './controllers/mollie.controller';
             },
             {
                 name: 'flex',
-                type: 'string', // Allows for values like '95+'
+                type: 'float', // Allows for values like '95+'
                 label: [{ languageCode: LanguageCode.en, value: 'Flex rating' }],
                 description: [{ languageCode: LanguageCode.en, value: 'Flex rating for the board' }],
                 nullable: true,
@@ -509,7 +509,7 @@ import { MollieController } from './controllers/mollie.controller';
             },
             {
                 name: 'riderWeightMax',
-                type: 'string', // Allows for values like '95+'
+                type: 'float', // Allows for values like '95+'
                 label: [{ languageCode: LanguageCode.en, value: 'Rider Weight Max (kg)' }],
                 description: [{ languageCode: LanguageCode.en, value: 'Maximum recommended rider weight in kilograms (use "+" for open-ended)' }],
                 nullable: true,
