@@ -74,8 +74,10 @@ export const config: VendureConfig = {
             password: process.env.SUPERADMIN_PASSWORD,
         },
         cookieOptions: {
-            // sameSite: "none",
-            httpOnly: false,
+            sameSite: "none",
+            secure: true,
+            httpOnly: true,  // usually recommended for session cookies
+            domain: '.boardrush.com',
             secret: process.env.COOKIE_SECRET,
         },
     },
