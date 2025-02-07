@@ -2752,6 +2752,11 @@
   resolved "https://registry.npmjs.org/@one-ini/wasm/-/wasm-0.1.1.tgz"
   integrity sha512-XuySG1E38YScSJoMlqovLru4KTUNSjgVTIjyh7qMX6aNN5HY5Ct5LhRJdxO79JtTzKfzV/bnWpz+zquYrISsvw==
 
+"@pinelab/vendure-plugin-sendcloud@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.npmjs.org/@pinelab/vendure-plugin-sendcloud/-/vendure-plugin-sendcloud-1.4.0.tgz"
+  integrity sha512-MLkfj+yCPq01pCPQjaOkOG/eZbmDqPv3eVG6IswHrFwi/9ZfYBwSU6WJZpyGEdnzlB2lFBNS0CgchnrvMEzb1A==
+
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
   resolved "https://registry.npmjs.org/@pkgjs/parseargs/-/parseargs-0.11.0.tgz"

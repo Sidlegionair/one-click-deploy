@@ -19,6 +19,7 @@
     "@aws-sdk/lib-storage": "^3.554.0",
     "@faker-js/faker": "^9.2.0",
     "@mollie/api-client": "^4.1.0",
+    "@pinelab/vendure-plugin-sendcloud": "^1.4.0",
     "@vendure/admin-ui": "^3.1.1",
     "@vendure/admin-ui-plugin": "^3.1.1",
     "@vendure/asset-server-plugin": "^3.1.1",

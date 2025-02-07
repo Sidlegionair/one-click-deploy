@@ -15,7 +15,9 @@ import 'dotenv/config';
 import path from 'path';
 import { MultivendorPlugin } from './plugins/multivendor-plugin/multivendor.plugin';
 import { ReviewsPlugin } from './plugins/reviews/reviews-plugin';
-import { Application } from 'express'; // Import the Express Application type
+import { Application } from 'express';
+import {SendcloudPlugin} from "@pinelab/vendure-plugin-sendcloud";
+import {compileUiExtensions} from "@vendure/ui-devkit/compiler"; // Import the Express Application type
 
 const IS_DEV = process.env.APP_ENV === 'dev' || false;
 
@@ -42,6 +44,12 @@ export const config: VendureConfig = {
             ? {
                 adminApiPlayground: { settings: { 'request.credentials': 'include' } },
                 adminApiDebug: true,
+                shopApiPlayground: {
+                    settings: {
+                        'request.credentials': 'include',
+                    },
+                },
+                shopApiDebug: true,
             }
             : {}),
         cors: {
@@ -91,6 +99,7 @@ export const config: VendureConfig = {
         paymentMethodHandlers: [dummyPaymentHandler],
     },
     plugins: [
+        SendcloudPlugin.init({}),
         ReviewsPlugin,
         MultivendorPlugin.init({
             platformFeePercent: 10,
@@ -124,17 +133,19 @@ export const config: VendureConfig = {
             templatePath: path.join(__dirname, '../static/email/templates'),
             globalTemplateVars: {
                 fromAddress: '"example" <noreply@example.com>',
-                verifyEmailAddressUrl: `${process.env.FRONTEND_URL}/verify`,
-                passwordResetUrl: `${process.env.FRONTEND_URL}/password-reset`,
-                changeEmailAddressUrl: `${process.env.FRONTEND_URL}/verify-email-address-change`,
+                verifyEmailAddressUrl: `${process.env.FRONTEND_URL}/customer/verify`,
+                passwordResetUrl: `${process.env.FRONTEND_URL}/customer/password-reset`,
+                changeEmailAddressUrl: `${process.env.FRONTEND_URL}/customer/verify-email-address-change`,
             },
         }),
         AdminUiPlugin.init({
             port: 3002,
             route: 'admin',
-            app: {
-                path: path.join(__dirname, '/admin-ui/dist'),
-            },
-        }),
+            app: compileUiExtensions({
+                // Use your existing output path; ensure it matches where your static Admin UI is built.
+                outputPath: path.join(__dirname, '/admin-ui/'),
+                extensions: [SendcloudPlugin.ui, ReviewsPlugin.uiExtensions],
+            }),
+        })
     ],
 };
