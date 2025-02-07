@@ -23,6 +23,9 @@ COPY package.json ./
 COPY yarn.lock ./
 RUN yarn install
 
+# Install Angular CLI globally to make 'ng' command available
+RUN yarn global add @angular/cli
+
 # Copy the source files
 COPY . .
 
