@@ -74,6 +74,8 @@ export const config: VendureConfig = {
             password: process.env.SUPERADMIN_PASSWORD,
         },
         cookieOptions: {
+            // sameSite: "none",
+            httpOnly: false,
             secret: process.env.COOKIE_SECRET,
         },
     },

@@ -1,0 +1,26 @@
+server {
+    listen 80;
+    server_name _;
+
+    # Route vendure-specific paths to the Vendure app running on port 3000.
+    location /vendure/ {
+        # Remove the /vendure prefix before forwarding to Vendure.
+        rewrite ^/vendure/(.*)$ /$1 break;
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # All other routes are proxied to your frontend app (FRONTEND_URL).
+    location / {
+        proxy_pass $FRONTEND_URL;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
