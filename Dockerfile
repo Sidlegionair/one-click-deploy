@@ -27,7 +27,7 @@ WORKDIR /usr/src/app
 COPY package.json yarn.lock ./
 RUN yarn install
 
-# Install Angular CLI globally if your build requires it
+# Install Angular CLI globally for the build stage (if needed)
 RUN yarn global add @angular/cli
 
 # Copy the source files and run the build commands
@@ -35,12 +35,15 @@ COPY . .
 RUN npm run build:prod
 
 # -------------------------
-# Stage 2: Set up the runtime image with Nginx
+# Stage 2: Set up the runtime image with Nginx and Angular CLI
 # -------------------------
 FROM node:20-slim
 
-# Install Nginx and envsubst for runtime variable substitution
-RUN apt-get update && apt-get install -y nginx gettext-base && rm -rf /var/lib/apt/lists/*
+# Install Nginx, envsubst, and Angular CLI globally in the runtime container
+RUN apt-get update && \
+    apt-get install -y nginx gettext-base && \
+    rm -rf /var/lib/apt/lists/* && \
+    yarn global add @angular/cli
 
 WORKDIR /usr/src/app
 
@@ -61,5 +64,5 @@ RUN chmod +x /usr/local/bin/start.sh
 EXPOSE 3000
 EXPOSE 80
 
-# Let Railway start with our preferred command
+# Start with the preferred command
 CMD ["/usr/local/bin/start.sh"]
