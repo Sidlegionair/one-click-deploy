@@ -6,7 +6,7 @@ import {
     bootstrap,
     StockDisplayStrategy,
     RequestContext,
-    ProductVariant, VendurePlugin, PluginCommonModule,
+    ProductVariant, VendurePlugin, PluginCommonModule, DefaultLogger, LogLevel,
 } from '@vendure/core';
 import { defaultEmailHandlers, EmailPlugin } from '@vendure/email-plugin';
 import { AssetServerPlugin, configureS3AssetStorage } from '@vendure/asset-server-plugin';
@@ -18,8 +18,11 @@ import { ReviewsPlugin } from './plugins/reviews/reviews-plugin';
 import { Application } from 'express';
 import {SendcloudPlugin} from "@pinelab/vendure-plugin-sendcloud";
 import {compileUiExtensions} from "@vendure/ui-devkit/compiler"; // Import the Express Application type
+import { ResendEmailSender } from './config/resend-email-sender';
 
 const IS_DEV = process.env.APP_ENV === 'dev' || false;
+
+
 
 export class ExactStockDisplayStrategy implements StockDisplayStrategy {
     getStockLevel(
@@ -33,6 +36,7 @@ export class ExactStockDisplayStrategy implements StockDisplayStrategy {
 
 
 export const config: VendureConfig = {
+    logger: new DefaultLogger({ level: LogLevel.Debug }),
     catalogOptions: {
         stockDisplayStrategy: new ExactStockDisplayStrategy(),
     },
@@ -74,7 +78,7 @@ export const config: VendureConfig = {
             password: process.env.SUPERADMIN_PASSWORD,
         },
         cookieOptions: {
-            domain: '.boardrush.com',
+            ...(IS_DEV ? {} : { domain: '.boardrush.com' }),
             secret: process.env.COOKIE_SECRET,
         },
     },
@@ -127,7 +131,9 @@ export const config: VendureConfig = {
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
         DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
         EmailPlugin.init({
-            devMode: true,
+            transport: { type: 'none' },
+            emailSender: new ResendEmailSender(process.env.RESEND_API_KEY || ''),
+            ...(IS_DEV ? { devMode: true } : {}),
             outputPath: path.join(__dirname, '../static/email/test-emails'),
             route: 'mailbox',
             handlers: defaultEmailHandlers,
@@ -145,8 +151,16 @@ export const config: VendureConfig = {
             app: compileUiExtensions({
                 // Use your existing output path; ensure it matches where your static Admin UI is built.
                 outputPath: path.join(__dirname, '/admin-ui/'),
-                extensions: [SendcloudPlugin.ui, ReviewsPlugin.uiExtensions],
+                extensions: [SendcloudPlugin.ui, ReviewsPlugin.uiExtensions, MultivendorPlugin.ui],
             }),
         })
+        // AdminUiPlugin.init({
+        //     port: 3002,
+        //     route: 'admin',
+        //     app: {
+        //         path: path.join(__dirname, '/admin-ui/dist'),
+        //     },
+        // }),
+
     ],
 };
