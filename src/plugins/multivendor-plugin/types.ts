@@ -1,3 +1,6 @@
+import { CustomOrderLineFields } from '@vendure/core';
+
+
 export interface MultivendorPluginOptions {
     platformFeePercent: number;
     platformFeeSKU: string;
@@ -20,6 +23,22 @@ export interface Seller {
         firstName?: string;
         [key: string]: any;
     };
+}
+
+declare module '@vendure/core/dist/entity/custom-entity-fields' {
+    interface CustomOrderFields {
+        transactionId?: string;
+        scenario?: string;
+        primaryVendorId?: string;
+        serviceDealerId?: string;
+        serviceAgentAvailable?: boolean;
+    }
+}
+
+declare module '@vendure/core' {
+    interface CustomOrderLineFields {
+        requestedSellerChannel?: string;
+    }
 }
 
 export interface GetSellersResponse {

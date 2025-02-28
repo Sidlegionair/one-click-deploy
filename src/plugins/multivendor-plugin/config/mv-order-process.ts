@@ -2,7 +2,7 @@ import { OrderType } from '@vendure/common/lib/generated-types';
 import { ID } from '@vendure/common/lib/shared-types';
 import {
     ChannelService,
-    CustomOrderProcess,
+    OrderProcess,
     idsAreEqual,
     Order,
     orderItemsAreDelivered,
@@ -21,7 +21,7 @@ let orderService: OrderService;
 let channelService: ChannelService;
 let requestContextService: RequestContextService;
 
-export const multivendorOrderProcess: CustomOrderProcess<any> = {
+export const multivendorOrderProcess: OrderProcess<any> = {
     init(injector) {
         connection = injector.get(TransactionalConnection);
         orderService = injector.get(OrderService);
@@ -30,6 +30,8 @@ export const multivendorOrderProcess: CustomOrderProcess<any> = {
     },
 
     async onTransitionStart(fromState, toState, data) {
+        console.log('onTransitionStart');
+
         const { ctx, order } = data;
         if (fromState === 'AddingItems' && toState === 'ArrangingPayment') {
             for (const line of data.order.lines) {
@@ -38,6 +40,7 @@ export const multivendorOrderProcess: CustomOrderProcess<any> = {
                 }
             }
         }
+
 
         // Aggregate orders are allowed to transition to these states without validating
         // fulfillments, since aggregate orders do not have fulfillments, but will get
@@ -70,6 +73,9 @@ export const multivendorOrderProcess: CustomOrderProcess<any> = {
         }
     },
     async onTransitionEnd(fromState, toState, data) {
+
+        console.log('onTransitionEnd');
+
         const { ctx, order } = data;
         if (order.type === OrderType.Seller) {
             const aggregateOrder = await orderService.getAggregateOrder(ctx, order);

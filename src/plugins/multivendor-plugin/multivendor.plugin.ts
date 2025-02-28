@@ -20,7 +20,16 @@ import {
     AdministratorService,
     RoleService,
     ShippingMethodService,
-    StockLocationService, Permission, StockLocation, SellerEvent, CustomSellerFields, ID, Customer, Seller, Asset,
+    StockLocationService,
+    Permission,
+    StockLocation,
+    SellerEvent,
+    CustomSellerFields,
+    ID,
+    Customer,
+    Seller,
+    Asset,
+    DefaultSearchPlugin,
 } from '@vendure/core';
 
 import { AdminUiExtension } from '@vendure/ui-devkit/compiler';
@@ -40,6 +49,10 @@ import { CreateSellerInput, MultivendorPluginOptions } from './types';
 import { channel } from 'node:diagnostics_channel';
 import { compileUiExtensions } from '@vendure/ui-devkit/compiler';
 import { MollieController } from './controllers/mollie.controller';
+import {ViesProxyController} from "./controllers/viesproxy.controller";
+import {CustomChannelController} from "./controllers/channel.controller";
+import {VendorSelectionResolver} from "./api/vendor-selection.resolver";
+import {VendorSelectionService} from "./service/vendor-selection.service";
 
 
 
@@ -143,11 +156,72 @@ import { MollieController } from './controllers/mollie.controller';
  * and then one or more "seller" orders in each Channel from which the customer bought items.
  */
 @VendurePlugin({
-    imports: [PluginCommonModule],
-    controllers: [MollieController],  // Register the MollieController here
+    imports: [PluginCommonModule, DefaultSearchPlugin],
+    controllers: [MollieController, ViesProxyController, CustomChannelController],  // Register the MollieController here
 
     compatibility: '^3.0.0',
     configuration: config => {
+
+        if (!config.customFields.Order) {
+            config.customFields.Order = [];
+        }
+
+        config.customFields.Order.push({
+            name: 'scenario',
+            type: 'string',
+            nullable: true,
+            public: true, // This field indicates which scenario was followed
+        });
+
+        config.customFields.Order.push({
+            name: 'primaryVendorId',
+            type: 'string',
+            nullable: true,
+            public: true, // ID of the primary vendor (seller)
+        });
+
+        config.customFields.Order.push({
+            name: 'serviceDealerId',
+            type: 'string',
+            nullable: true,
+            public: true, // ID of the service dealer
+        });
+
+        config.customFields.Order.push({
+            name: 'serviceAgentAvailable',
+            type: 'boolean',
+            nullable: true,
+            public: true, // Indicates if a service agent was available
+        });
+
+
+
+        if(!config.customFields.OrderLine) {
+            config.customFields.OrderLine = [];
+        }
+        config.customFields.OrderLine.push({
+            name: 'requestedSellerChannel',
+            type: 'string',
+            nullable: true,
+            public: true, // Allows this field to be accessed in API responses
+        })
+
+
+        // ---------------------------------------------------------------------
+        // Add VAT Number to the Address entity so it appears in CreateAddressInput
+        // ---------------------------------------------------------------------
+        if (!config.customFields.Address) {
+            config.customFields.Address = [];
+        }
+        config.customFields.Address.push({
+            name: 'vatNumber',
+            type: 'string',
+            public: true, // Ensures it is exposed via the GraphQL API on inputs
+            nullable: true,
+            label: [{ languageCode: LanguageCode.en, value: 'VAT Number' }],
+            description: [{ languageCode: LanguageCode.en, value: 'The VAT Number for this address' }],
+        });
+
         config.customFields.Customer.push({
             name: 'preferredSeller',
             label: [
@@ -983,13 +1057,38 @@ import { MollieController } from './controllers/mollie.controller';
             nullable: false,
             defaultValue: 'PHYSICAL_STORE', // Set an appropriate default value
             options: [
-                { value: 'PHYSICAL_STORE', label: [{ languageCode: LanguageCode.en, value: 'Physical Store' }] },
+                { value: 'PHYSICAL_STORE_OR_SERVICE_DEALER', label: [{ languageCode: LanguageCode.en, value: 'Physical Store and/or service dealer' }] },
                 { value: 'MANUFACTURER', label: [{ languageCode: LanguageCode.en, value: 'Manufacturer' }] },
-                { value: 'SERVICE_AGENT', label: [{ languageCode: LanguageCode.en, value: 'Service Agent' }] },
+                { value: 'AGENT', label: [{ languageCode: LanguageCode.en, value: 'Agent' }] },
                 { value: 'BOARDRUSH_PLATFORM', label: [{ languageCode: LanguageCode.en, value: 'Boardrush Platform' }] },
-                { value: 'SERVICE_DEALER', label: [{ languageCode: LanguageCode.en, value: 'Service Dealer' }] },
             ],
-        });
+        },
+        {
+            name: 'merkDealer',
+                label: [{ languageCode: LanguageCode.en, value: 'MERK Dealer' }],
+            description: [{ languageCode: LanguageCode.en, value: 'Attached MERK Dealer for the manufacturer' }],
+            type: 'relation',
+            entity: Seller, // Make sure to import your Seller entity correctly
+            public: true,
+            nullable: true,
+            ui: {
+                component: 'preferred-seller-input', // Should match the registered component name
+            },
+        },
+        {
+            name: 'merkDistributeur',
+                label: [{ languageCode: LanguageCode.en, value: 'MERK Distributeur' }],
+            description: [{ languageCode: LanguageCode.en, value: 'Attached MERK Distributeur (agent) for the manufacturer' }],
+            type: 'relation',
+            entity: Seller, // Make sure to import your Seller entity correctly
+            public: true,
+            nullable: true,
+            ui: {
+                component: 'preferred-seller-input', // Should match the registered component name
+        },
+        }
+
+    );
 
         config.customFields.Administrator.push(
             {
@@ -1052,6 +1151,8 @@ import { MollieController } from './controllers/mollie.controller';
     },
     providers: [
         MultivendorService,
+        VendorSelectionService,
+        VendorSelectionResolver,
         { provide: MULTIVENDOR_PLUGIN_OPTIONS, useFactory: () => MultivendorPlugin.options },
     ],
 })
