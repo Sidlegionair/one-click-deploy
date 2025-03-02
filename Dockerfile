@@ -5,6 +5,7 @@ ARG MOLLIE_API_KEY
 ARG MOLLIE_CLIENT_ID
 ARG MOLLIE_CLIENT_SECRET
 ARG FRONTEND_URLS
+ARG FRONTEND_URL
 ARG COOKIE_SECRET
 ARG APP_ENV
 ARG RESEND_API_KEY
@@ -17,13 +18,16 @@ ENV FRONTEND_URLS=${FRONTEND_URLS}
 ENV COOKIE_SECRET=${COOKIE_SECRET}
 ENV APP_ENV=${APP_ENV}
 ENV RESEND_API_KEY=${RESEND_API_KEY}
-
+ENV FRONTEND_URL=${FRONTEND_URL}
 WORKDIR /usr/src/app
 
 # Install dependencies
 COPY package.json ./
 COPY yarn.lock ./
 RUN yarn install
+
+# Install Angular CLI globally to make 'ng' command available
+RUN yarn global add @angular/cli
 
 # Copy the source files
 COPY . .
