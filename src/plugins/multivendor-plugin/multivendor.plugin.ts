@@ -24,7 +24,6 @@ import {
     Permission,
     StockLocation,
     SellerEvent,
-    CustomSellerFields,
     ID,
     Customer,
     Seller,
@@ -174,17 +173,25 @@ import {VendorSelectionService} from "./service/vendor-selection.service";
         });
 
         config.customFields.Order.push({
-            name: 'primaryVendorId',
-            type: 'string',
+            name: 'primaryVendor',
+            type: 'relation',
+            entity: Seller, // Make sure to import your Seller entity correctly
+            public: true,
             nullable: true,
-            public: true, // ID of the primary vendor (seller)
+            ui: {
+                component: 'preferred-seller-input', // Should match the registered component name
+            },
         });
 
         config.customFields.Order.push({
-            name: 'serviceDealerId',
-            type: 'string',
+            name: 'serviceDealer',
+            type: 'relation',
+            entity: Seller, // Make sure to import your Seller entity correctly
+            public: true,
             nullable: true,
-            public: true, // ID of the service dealer
+            ui: {
+                component: 'preferred-seller-input', // Should match the registered component name
+            },
         });
 
         config.customFields.Order.push({

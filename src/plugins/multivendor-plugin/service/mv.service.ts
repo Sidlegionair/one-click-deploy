@@ -93,6 +93,48 @@ export class MultivendorService {
         return channel;
     }
 
+
+    // Method to refresh Mollie tokens using the refresh token grant
+    async refreshMollieTokens(refreshToken: string): Promise<MollieTokenResponse> {
+        const clientId = process.env.MOLLIE_CLIENT_ID;
+        const clientSecret = process.env.MOLLIE_CLIENT_SECRET;
+        const hostname = this.configService.apiOptions.hostname || 'https://localhost:3000';
+        const redirectUri = `${hostname}/mollie/callback`;
+
+        if (!clientId || !clientSecret) {
+            throw new Error('Mollie Client ID or Client Secret is not defined');
+        }
+
+        const response = await fetch('https://api.mollie.com/oauth2/tokens', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                grant_type: 'refresh_token',
+                refresh_token: refreshToken,
+                client_id: clientId,
+                client_secret: clientSecret,
+                redirect_uri: redirectUri,
+            }),
+        });
+
+        if (!response.ok) {
+            const errorBody = await response.text();
+            try {
+                const errorJson = JSON.parse(errorBody);
+                throw new Error(`Mollie API error: ${errorJson.error} - ${errorJson.error_description}`);
+            } catch (parseError) {
+                throw new Error(`Mollie API error: ${errorBody}`);
+            }
+        }
+
+        const tokens = (await response.json()) as MollieTokenResponse;
+        return tokens;
+    }
+
+
+
     // Method to exchange code for Mollie tokens
     async exchangeCodeForTokens(code: string): Promise<MollieTokenResponse> {
         const clientId = process.env.MOLLIE_CLIENT_ID;

@@ -133,13 +133,13 @@ export const config: VendureConfig = {
         EmailPlugin.init({
             transport: { type: 'none' },
             emailSender: new ResendEmailSender(process.env.RESEND_API_KEY || ''),
-            ...(IS_DEV ? { devMode: true } : {}),
+            // ...(IS_DEV ? { devMode: true } : {}),
             outputPath: path.join(__dirname, '../static/email/test-emails'),
             route: 'mailbox',
             handlers: defaultEmailHandlers,
             templatePath: path.join(__dirname, '../static/email/templates'),
             globalTemplateVars: {
-                fromAddress: '"example" <noreply@example.com>',
+                fromAddress: '"Boardrush" <no-reply@transactional.boardrush.com>',
                 verifyEmailAddressUrl: `${process.env.FRONTEND_URL}/customer/verify`,
                 passwordResetUrl: `${process.env.FRONTEND_URL}/customer/password-reset`,
                 changeEmailAddressUrl: `${process.env.FRONTEND_URL}/customer/verify-email-address-change`,
