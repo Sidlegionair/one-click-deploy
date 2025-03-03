@@ -98,7 +98,7 @@ export class MultivendorService {
     async refreshMollieTokens(refreshToken: string): Promise<MollieTokenResponse> {
         const clientId = process.env.MOLLIE_CLIENT_ID;
         const clientSecret = process.env.MOLLIE_CLIENT_SECRET;
-        const hostname = this.configService.apiOptions.hostname || 'https://localhost:3000';
+        const hostname = process.env.VENDURE_HOST || 'https://localhost:3000'; // Default to 'https://localhost'
         const redirectUri = `${hostname}/mollie/callback`;
 
         if (!clientId || !clientSecret) {
@@ -139,7 +139,7 @@ export class MultivendorService {
     async exchangeCodeForTokens(code: string): Promise<MollieTokenResponse> {
         const clientId = process.env.MOLLIE_CLIENT_ID;
         const clientSecret = process.env.MOLLIE_CLIENT_SECRET;
-        const hostname = this.configService.apiOptions.hostname || 'https://localhost:3000'; // Default to 'https://localhost'
+        const hostname = process.env.VENDURE_HOST || 'https://localhost:3000'; // Default to 'https://localhost'
         const redirectUri = `${hostname}/mollie/callback`; // Redirect URL for authorization callback
 
         // Ensure that clientId and clientSecret are defined
