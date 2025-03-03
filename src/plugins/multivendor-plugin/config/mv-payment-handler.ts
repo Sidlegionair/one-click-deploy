@@ -33,7 +33,7 @@ if (!mollieApiKey) {
 function determineServiceDealer(seller: VendureSeller): VendureSeller | null {
     const vendorType = seller.customFields?.vendorType;
     if (vendorType === 'PHYSICAL_STORE_OR_SERVICE_DEALER') {
-        return seller;
+        return null;
     } else if (vendorType === 'MANUFACTURER') {
         if (seller.customFields?.merkDealer) {
             return seller.customFields.merkDealer;

@@ -34,5 +34,12 @@ RUN yarn global add @angular/cli
 # Copy the source files
 COPY . .
 
+# Ensure the /static/assets directory exists and set permissions
+RUN mkdir -p /static/assets && chmod -R 777 /static/assets
+
+# Set up the volume for Vendure assets
+VOLUME ["/static/assets"]
+
+
 # Run the build commands
 RUN npm run build:prod
