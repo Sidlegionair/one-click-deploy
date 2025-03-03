@@ -21,6 +21,11 @@ ENV COOKIE_SECRET=${COOKIE_SECRET}
 ENV APP_ENV=${APP_ENV}
 ENV RESEND_API_KEY=${RESEND_API_KEY}
 ENV FRONTEND_URL=${FRONTEND_URL}
+
+
+# Railway Volume Mount Path (Automatically provided)
+ENV STATIC_ASSETS_PATH="/static/assets"
+
 WORKDIR /usr/src/app
 
 # Install dependencies
@@ -34,11 +39,10 @@ RUN yarn global add @angular/cli
 # Copy the source files
 COPY . .
 
-# Ensure the /static/assets directory exists and set permissions
-RUN mkdir -p /static/assets && chmod -R 777 /static/assets
 
-# Set up the volume for Vendure assets
-VOLUME ["/static/assets"]
+# Ensure /static/assets exists and has correct permissions
+RUN mkdir -p $STATIC_ASSETS_PATH && chmod -R 777 $STATIC_ASSETS_PATH
+
 
 
 # Run the build commands
