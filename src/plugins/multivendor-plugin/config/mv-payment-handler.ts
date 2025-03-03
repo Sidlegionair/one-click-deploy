@@ -168,6 +168,7 @@ async function createAggregatePayment(
         const result = await mollieClient.payments.create(<ExtendedCreateParameters>{
             amount: { value: orderAmountEuros.toFixed(2), currency: 'EUR' },
             description: `Order ${order.code}`,
+            webhookUrl: `${process.env.VENDURE_HOST}/mollie/webhook`,
             redirectUrl: `${process.env.FRONTEND_URL}/checkout/confirmation/${order.code}`,
             routing: finalRoutingArray,
         });
