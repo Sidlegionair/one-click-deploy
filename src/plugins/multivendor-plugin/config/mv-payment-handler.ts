@@ -261,7 +261,7 @@ async function fetchSellerRoutingInfo(
     console.log(`[fetchSellerRoutingInfo] Initial computed percentages: ${JSON.stringify(percentages)}`);
 
     // // Use the same logic as our strategy to determine the service dealer.
-    // const serviceDealerSeller = determineServiceDealer(seller);
+    const serviceDealerSeller = determineServiceDealer(seller);
     // if (serviceDealerSeller) {
     //     console.log(`[fetchSellerRoutingInfo] Service dealer determined from seller customFields: ${serviceDealerSeller.id}`);
     //     // Override percentages to enforce a service dealer fee.
