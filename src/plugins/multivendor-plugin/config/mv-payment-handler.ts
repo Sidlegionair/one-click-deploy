@@ -260,13 +260,13 @@ async function fetchSellerRoutingInfo(
     let percentages = computeDynamicFeePercentagesForSeller(seller, order);
     console.log(`[fetchSellerRoutingInfo] Initial computed percentages: ${JSON.stringify(percentages)}`);
 
-    // Use the same logic as our strategy to determine the service dealer.
-    const serviceDealerSeller = determineServiceDealer(seller);
-    if (serviceDealerSeller) {
-        console.log(`[fetchSellerRoutingInfo] Service dealer determined from seller customFields: ${serviceDealerSeller.id}`);
-        // Override percentages to enforce a service dealer fee.
-        percentages = { boardrush: percentages.boardrush, serviceDealer: 10, vendor: percentages.vendor - 10 };
-    }
+    // // Use the same logic as our strategy to determine the service dealer.
+    // const serviceDealerSeller = determineServiceDealer(seller);
+    // if (serviceDealerSeller) {
+    //     console.log(`[fetchSellerRoutingInfo] Service dealer determined from seller customFields: ${serviceDealerSeller.id}`);
+    //     // Override percentages to enforce a service dealer fee.
+    //     percentages = { boardrush: percentages.boardrush, serviceDealer: 10, vendor: percentages.vendor - 10 };
+    // }
     console.log(`[fetchSellerRoutingInfo] Final percentages used for routing: ${JSON.stringify(percentages)}`);
 
     // Calculate fee amounts for this order line.

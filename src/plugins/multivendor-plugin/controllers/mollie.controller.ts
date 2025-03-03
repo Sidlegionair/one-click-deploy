@@ -27,7 +27,7 @@ export class MollieController {
         }
 
         const clientId = process.env.MOLLIE_CLIENT_ID;
-        const hostname = this.configService.apiOptions.hostname || 'https://localhost:3000'; // Default to 'https://localhost'
+        const hostname = process.env.VENDURE_HOST || 'https://localhost:3000'; // Default to 'https://localhost'
         const redirectUri = `${hostname}/mollie/callback`; // Redirect URL for authorization callback
 
         const mollieAuthUrl = `https://www.mollie.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&state=${adminId}&response_type=code&scope=payments.read+payments.write+organizations.read+profiles.read`;
