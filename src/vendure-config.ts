@@ -19,8 +19,10 @@ import { Application } from 'express';
 import {SendcloudPlugin} from "@pinelab/vendure-plugin-sendcloud";
 import {compileUiExtensions} from "@vendure/ui-devkit/compiler"; // Import the Express Application type
 import { ResendEmailSender } from './config/resend-email-sender';
+import { KlaviyoPlugin } from '@pinelab/vendure-plugin-klaviyo';
 
 const IS_DEV = process.env.APP_ENV === 'dev' || false;
+const KLAVIYO_API_KEY = process.env.KLAVIYO_API_KEY || '';
 
 
 
@@ -110,6 +112,9 @@ export const config: VendureConfig = {
             platformFeePercent: 10,
             platformFeeSKU: 'FEE',
         }),
+        KlaviyoPlugin.init({
+            apiKey: 'some_private_api_key',
+        }),
         AssetServerPlugin.init({
             route: 'assets',
             assetUploadDir: process.env.ASSET_UPLOAD_DIR || path.join(__dirname, '../static/assets'),
@@ -127,7 +132,9 @@ export const config: VendureConfig = {
                 },
             }) : undefined,
         }),
-
+        KlaviyoPlugin.init({
+            apiKey: KLAVIYO_API_KEY,
+        }),
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
         DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
         EmailPlugin.init({
