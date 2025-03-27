@@ -112,9 +112,6 @@ export const config: VendureConfig = {
             platformFeePercent: 10,
             platformFeeSKU: 'FEE',
         }),
-        KlaviyoPlugin.init({
-            apiKey: 'some_private_api_key',
-        }),
         AssetServerPlugin.init({
             route: 'assets',
             assetUploadDir: process.env.ASSET_UPLOAD_DIR || path.join(__dirname, '../static/assets'),
