@@ -81,17 +81,20 @@ export class MollieController {
                     apiType: 'admin',
                 });
 
-                // Look up the Payment record by its transactionId in the Payment entity
-                const paymentRecord = await this.connection.getRepository(ctx, Payment).findOne({
+                // Find all Payment records with the matching transactionId
+                const paymentRecords = await this.connection.getRepository(ctx, Payment).find({
                     where: { transactionId: paymentId },
                     relations: ['order']
                 });
 
-                if (paymentRecord) {
-                    await this.paymentService.settlePayment(ctx, paymentRecord.id);
-                    return res.status(200).send('Payment settled successfully.');
+                if (paymentRecords && paymentRecords.length > 0) {
+                    // Settle all found payments concurrently
+                    await Promise.all(
+                        paymentRecords.map(paymentRecord => this.paymentService.settlePayment(ctx, paymentRecord.id))
+                    );
+                    return res.status(200).send('All matching payments settled successfully.');
                 } else {
-                    return res.status(404).send('Payment record not found for transaction ID: ' + paymentId);
+                    return res.status(404).send('No payment records found for transaction ID: ' + paymentId);
                 }
             } else {
                 return res.status(200).send(`Payment status: ${molliePayment.status}`);
