@@ -162,9 +162,7 @@ export class MultivendorSellerStrategy implements OrderSellerStrategy {
     async afterSellerOrdersCreated(ctx: RequestContext, aggregateOrder: Order, sellerOrders: Order[]) {
         console.log('[afterSellerOrdersCreated] Processing seller orders for aggregate order:', aggregateOrder.code);
         const paymentMethod = await this.connection.rawConnection.getRepository(PaymentMethod).findOne({
-            where: {
-                code: CONNECTED_PAYMENT_METHOD_CODE,
-            },
+            where: { code: CONNECTED_PAYMENT_METHOD_CODE },
         });
         if (!paymentMethod) {
             console.warn('[afterSellerOrdersCreated] No connected payment method found, aborting further processing.');
@@ -175,19 +173,22 @@ export class MultivendorSellerStrategy implements OrderSellerStrategy {
         const defaultChannel = await this.channelService.getDefaultChannel();
         console.log('[afterSellerOrdersCreated] Default channel:', defaultChannel);
 
+        // Retrieve the aggregate payment created for the main order.
+        const mainPayment = aggregateOrder.payments && aggregateOrder.payments[0];
+        if (!mainPayment) {
+            throw new InternalServerError(`Aggregate order payment not found for order ${aggregateOrder.code}`);
+        }
+
         for (const sellerOrder of sellerOrders) {
             console.log('[afterSellerOrdersCreated] Processing seller order:', sellerOrder.code);
             const sellerChannel = sellerOrder.channels.find(c => !idsAreEqual(c.id, defaultChannel.id));
             if (!sellerChannel) {
                 console.error(`[afterSellerOrdersCreated] Could not determine Seller Channel for Order ${sellerOrder.code}`);
-                throw new InternalServerError(
-                    `Could not determine Seller Channel for Order ${sellerOrder.code}`,
-                );
+                throw new InternalServerError(`Could not determine Seller Channel for Order ${sellerOrder.code}`);
             }
             console.log('[afterSellerOrdersCreated] Seller channel determined:', sellerChannel);
 
-            // Hydrate the seller relation on the channel so we can read custom fields
-            // First, ensure that the seller is loaded on the channel.
+            // Hydrate seller and custom fields.
             await this.entityHydrator.hydrate(ctx, sellerChannel, { relations: ['seller'] });
             if (sellerChannel.seller) {
                 await this.entityHydrator.hydrate(ctx, sellerChannel.seller, { relations: ['customFields.merkDealer', 'customFields.merkDistributeur'] });
@@ -195,39 +196,28 @@ export class MultivendorSellerStrategy implements OrderSellerStrategy {
                 throw new Error(`Seller is not defined on sellerChannel ${sellerChannel.id}`);
             }
             console.log('[afterSellerOrdersCreated] Hydrated seller for channel:', sellerChannel.id, sellerChannel.seller);
-            // Log the full seller object for additional debugging.
             console.log('[afterSellerOrdersCreated] Seller details:', sellerChannel.seller);
 
-            // Apply custom order fields based on the seller's data
-            if (sellerChannel.seller) {
-                console.log('[afterSellerOrdersCreated] Applying custom order fields for seller:', sellerChannel.seller.id);
-                this.applyCustomOrderFields(sellerOrder, sellerChannel.seller);
-            } else {
-                console.warn(`[afterSellerOrdersCreated] No seller found on channel ${sellerChannel.id}`);
-            }
+            // Apply custom order fields based on seller data.
+            console.log('[afterSellerOrdersCreated] Applying custom order fields for seller:', sellerChannel.seller.id);
+            this.applyCustomOrderFields(sellerOrder, sellerChannel.seller);
 
-            // Apply dynamic fees/surcharges based on the scenario set above
+            // Apply dynamic fees/surcharges.
             console.log('[afterSellerOrdersCreated] Applying dynamic fees for seller order:', sellerOrder.code);
             await this.applyDynamicFees(ctx, sellerOrder);
 
-            // Apply price adjustments and add payment
+            // Apply price adjustments.
             console.log('[afterSellerOrdersCreated] Applying price adjustments for seller order:', sellerOrder.code);
             await this.orderService.applyPriceAdjustments(ctx, sellerOrder);
-            console.log('[afterSellerOrdersCreated] Adding payment to seller order:', sellerOrder.code);
-            const result = await this.orderService.addPaymentToOrder(ctx, sellerOrder.id, {
-                method: paymentMethod.code,
-                metadata: {
-                    transfer_group: aggregateOrder.code,
-                    connectedAccountId: sellerChannel.seller?.customFields.connectedAccountId,
-                },
-            });
-            if (isGraphQlErrorResult(result)) {
-                console.error('[afterSellerOrdersCreated] Error adding payment to order:', result.message);
-                throw new InternalServerError(result.message);
-            }
-            console.log('[afterSellerOrdersCreated] Payment added successfully to seller order:', sellerOrder.code);
+
+            // Instead of creating a separate payment for the seller order, assign the aggregate payment.
+            console.log('[afterSellerOrdersCreated] Assigning aggregate payment to seller order:', sellerOrder.code);
+            sellerOrder.payments = [mainPayment];
+            // Optionally, persist the update if needed:
+            // await this.orderService.updateOrder(ctx, sellerOrder.id, { payments: sellerOrder.payments });
         }
     }
+
 
     /**
      * Applies the custom order fields (scenario, primaryVendor, serviceDealer, serviceAgentAvailable)
