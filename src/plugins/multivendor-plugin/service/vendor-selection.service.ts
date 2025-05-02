@@ -106,8 +106,11 @@ export class VendorSelectionService {
                             stockLocationId: assignedStockLocationId,
                         },
                     });
-                    const totalStockOnHand = stockLevels.reduce((sum, sl) => sum + sl.stockOnHand, 0);
-                    inStock = totalStockOnHand > 0;
+                    const totalAvailableStock = stockLevels.reduce(
+                        (sum, sl) => sum + (sl.stockOnHand - sl.stockAllocated),
+                        0
+                    );
+                    inStock = totalAvailableStock > 0;
                 }
 
                 const price = variant ? variant.price : 0;

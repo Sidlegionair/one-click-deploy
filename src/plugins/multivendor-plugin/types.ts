@@ -43,7 +43,10 @@ declare module '@vendure/core' {
         merkDealer?: Seller | null;
         merkDistributeur?: Seller | null;
     }
+
+
 }
+
 
 
 declare module '@vendure/core/dist/entity/custom-entity-fields' {
@@ -54,6 +57,12 @@ declare module '@vendure/core/dist/entity/custom-entity-fields' {
         serviceDealer?: Seller | null;
         serviceAgentAvailable?: boolean;
     }
+
+    interface CustomProductFields {
+        brand?: string;
+    }
+
+
 }
 
 declare module '@vendure/core' {
