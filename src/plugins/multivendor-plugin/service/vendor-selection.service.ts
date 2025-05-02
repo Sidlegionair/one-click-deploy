@@ -59,17 +59,20 @@ export class VendorSelectionService {
      * for the assigned stock location.
      */
     async getVendors(ctx: RequestContext, productId: string): Promise<Vendor[]> {
+        this.logger.debug(`getVendors: productId=${productId}`);
         const channelRepo = this.connection.getRepository(ctx, Channel);
         const channels = await channelRepo.find({
             relations: ['seller', 'stockLocations'],
             take: 100,
         });
+        this.logger.debug(`getVendors: fetched ${channels.length} channels`);
 
         // Load global settings once for threshold lookup
         const settings = await this.globalSettingsService.getSettings(ctx);
 
         const vendors: Vendor[] = await Promise.all(
             channels.map(async channel => {
+                this.logger.debug(`Channel ${channel.id}: building vendor`);
                 // Create a channel-specific RequestContext
                 const channelCtx = new RequestContext({
                     channel,
@@ -83,6 +86,7 @@ export class VendorSelectionService {
                 // Fetch the variant for this channel
                 const variantRepo = this.connection.getRepository(channelCtx, ProductVariant);
                 const variant = await variantRepo.findOne({ where: { id: productId } });
+                this.logger.debug(`Channel ${channel.id}: variant ${variant ? 'found' : 'not found'}`);
 
                 // Determine the single assigned stockLocationId for this channel
                 let assignedStockLocationId: string | undefined;
@@ -91,6 +95,7 @@ export class VendorSelectionService {
                 } else if (channel.stockLocations?.length) {
                     assignedStockLocationId = String(channel.stockLocations[0].id);
                 }
+                this.logger.debug(`Channel ${channel.id}: assignedStockLocationId=${assignedStockLocationId}`);
 
                 // Calculate saleable stock manually: stockOnHand - stockAllocated - threshold
                 let inStock = false;
@@ -102,6 +107,7 @@ export class VendorSelectionService {
                             stockLocationId: assignedStockLocationId,
                         },
                     });
+                    this.logger.debug(`Channel ${channel.id}: fetched ${stockLevels.length} stockLevels`);
 
                     const totalOnHand    = stockLevels.reduce((sum, sl) => sum + sl.stockOnHand, 0);
                     const totalAllocated = stockLevels.reduce((sum, sl) => sum + sl.stockAllocated, 0);
@@ -111,10 +117,19 @@ export class VendorSelectionService {
 
                     const saleable = totalOnHand - totalAllocated - threshold;
                     inStock = saleable > 0;
+                    this.logger.debug(
+                        `Channel ${channel.id}: totalOnHand=${totalOnHand}, totalAllocated=${totalAllocated}, ` +
+                        `threshold=${threshold}, saleable=${saleable}, inStock=${inStock}`
+                    );
+                } else {
+                    this.logger.debug(
+                        `Channel ${channel.id}: skipping stock calc (variant=${!!variant}, location=${!!assignedStockLocationId})`
+                    );
                 }
 
                 // Determine price (channel-specific or fallback)
                 const price = variant ? variant.price : 0;
+                this.logger.debug(`Channel ${channel.id}: price=${price}`);
 
                 return {
                     slug: channel.token,
@@ -142,6 +157,7 @@ export class VendorSelectionService {
             })
         );
 
+        this.logger.debug(`getVendors: returning ${vendors.length} vendors`);
         return vendors;
     }
 
@@ -255,8 +271,13 @@ export class VendorSelectionService {
         ctx: RequestContext,
         productId: string,
     ): Promise<Vendor | undefined> {
+        this.logger.debug(`Starting vendor selection for product ${productId}`);
         const vendors = await this.getVendors(ctx, productId);
+        this.logger.debug(`Fetched ${vendors.length} total vendors`);
+
         const customer = await this.getAuthenticatedCustomer(ctx);
+        this.logger.debug(`Customer: ${customer ? customer.id : 'anonymous'}`);
+
         const queryLang = ctx.languageCode;
 
         let customerPostalCode: string | undefined;
@@ -265,78 +286,119 @@ export class VendorSelectionService {
             customerPostalCode = customer.customFields.postalCode ?? undefined;
             customerCountry   = customer.customFields.country ?? undefined;
         }
+        this.logger.debug(`Customer postalCode/country from profile: ${customerPostalCode}/${customerCountry}`);
         if (!customerPostalCode || !customerCountry) {
-            customerPostalCode = vendors[0]?.seller?.postalCode ?? undefined;
-            customerCountry   = vendors[0]?.seller?.country ?? undefined;
+            customerPostalCode = vendors[0]?.seller?.postalCode;
+            customerCountry   = vendors[0]?.seller?.country;
+            this.logger.debug(`Falling back to first vendor for postalCode/country: ${customerPostalCode}/${customerCountry}`);
         }
 
         let available = vendors.filter(v => v.inStock);
+        this.logger.debug(`Step filter: inStock => ${available.length} vendors`);
         if (!customer) {
             available = available.filter(v => v.locales.includes(queryLang));
+            this.logger.debug(`Step filter: locales include ${queryLang} => ${available.length} vendors`);
         }
 
         // 1. BOARDRUSH_PLATFORM
+        this.logger.debug('Step 1: Searching for BOARDRUSH_PLATFORM');
         let sel = available.find(v => v.seller?.vendorType === 'BOARDRUSH_PLATFORM');
+        this.logger.debug(`Step 1 result: ${sel ? sel.sellerId : 'none'}`);
         if (sel) return sel;
 
         // 2. Customer’s Preferred Shop
+        this.logger.debug('Step 2: Customer’s Preferred Shop');
         if (customer?.customFields?.preferredSeller) {
             const pid = String(customer.customFields.preferredSeller.id);
             sel = available.find(v => v.sellerId === pid);
+            this.logger.debug(`Step 2 preferredSeller.id=${pid} result: ${sel ? sel.sellerId : 'none'}`);
             if (sel) return sel;
+        } else {
+            this.logger.debug('Step 2: No preferredSeller defined');
         }
 
         // 3. Lowest Price Within Country
+        this.logger.debug('Step 3: Lowest Price Within Country');
         const domestic = available.filter(v =>
             v.seller?.country === customerCountry &&
             v.seller?.vendorType === 'PHYSICAL_STORE_OR_SERVICE_DEALER'
         );
+        this.logger.debug(`Step 3: Domestic count=${domestic.length}`);
         if (domestic.length) {
             domestic.sort((a, b) => a.price - b.price);
+            this.logger.debug(`Step 3: Selected ${domestic[0].sellerId} at price ${domestic[0].price}`);
             return domestic[0];
         }
 
         // 4. MERK Dealer by Postal Code
+        this.logger.debug('Step 4: MERK Dealer by Postal Code');
         const manuWithDealer = available.filter(v =>
             v.seller?.vendorType === 'MANUFACTURER' &&
             v.seller?.merkDealer?.id
         );
+        this.logger.debug(`Step 4: Manufacturers with dealer count=${manuWithDealer.length}`);
         for (const m of manuWithDealer) {
             sel = available.find(v => v.sellerId === m.seller!.merkDealer!.id);
-            if (sel) return sel;
+            this.logger.debug(`Checking merkDealer.id=${m.seller!.merkDealer!.id} => ${sel ? 'found' : 'none'}`);
+            if (sel) {
+                this.logger.debug(`Step 4 result: ${sel.sellerId}`);
+                return sel;
+            }
         }
 
         // 5. Non-MERK Dealer Nearby
+        this.logger.debug('Step 5: Non-MERK Dealer Nearby');
         const nonAttached = available.filter(v =>
             v.seller?.country === customerCountry &&
             v.seller?.vendorType === 'PHYSICAL_STORE_OR_SERVICE_DEALER'
         );
+        this.logger.debug(`Step 5: Non-attached dealers count=${nonAttached.length}`);
         if (nonAttached.length && customerPostalCode && customerCountry) {
             sel = await this.getClosestVendor(nonAttached, customerPostalCode, customerCountry);
+            this.logger.debug(`Step 5 result: ${sel ? sel.sellerId : 'none'}`);
             if (sel) return sel;
         }
 
         // 6. MERK Distributeur
+        this.logger.debug('Step 6: MERK Distributeur');
         const manuWithDistrib = available.filter(v =>
             v.seller?.vendorType === 'MANUFACTURER' &&
             v.seller?.merkDistributeur?.id
         );
+        this.logger.debug(`Step 6: Manufacturers with distrib count=${manuWithDistrib.length}`);
         for (const m of manuWithDistrib) {
             sel = available.find(v => v.sellerId === m.seller!.merkDistributeur!.id);
-            if (sel) return sel;
+            this.logger.debug(`Checking merkDistributeur.id=${m.seller!.merkDistributeur!.id} => ${sel ? 'found' : 'none'}`);
+            if (sel) {
+                this.logger.debug(`Step 6 result: ${sel.sellerId}`);
+                return sel;
+            }
         }
         const agents = available.filter(v => v.seller?.vendorType === 'AGENT');
-        if (agents.length) return agents[0];
-
-        // 7. MERK Manufacturer
-        const makers = available.filter(v => v.seller?.vendorType === 'MANUFACTURER');
-        if (makers.length) return makers[0];
-
-        // 8. International fallback
-        if (available.length && customerPostalCode && customerCountry) {
-            return this.getClosestVendor(available, customerPostalCode, customerCountry);
+        this.logger.debug(`Step 6: Agents count=${agents.length}`);
+        if (agents.length) {
+            this.logger.debug(`Step 6 result (agent): ${agents[0].sellerId}`);
+            return agents[0];
         }
 
+        // 7. MERK Manufacturer
+        this.logger.debug('Step 7: MERK Manufacturer');
+        const makers = available.filter(v => v.seller?.vendorType === 'MANUFACTURER');
+        this.logger.debug(`Step 7: Manufacturers count=${makers.length}`);
+        if (makers.length) {
+            this.logger.debug(`Step 7 result: ${makers[0].sellerId}`);
+            return makers[0];
+        }
+
+        // 8. International fallback
+        this.logger.debug('Step 8: International fallback');
+        if (available.length && customerPostalCode && customerCountry) {
+            sel = await this.getClosestVendor(available, customerPostalCode, customerCountry);
+            this.logger.debug(`Step 8 result: ${sel ? sel.sellerId : 'none'}`);
+            return sel;
+        }
+
+        this.logger.debug('No vendor selected, returning undefined');
         return undefined;
     }
 }
