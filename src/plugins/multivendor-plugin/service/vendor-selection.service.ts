@@ -51,7 +51,8 @@ export class VendorSelectionService {
         private customerService: CustomerService,
         private productVariantService: ProductVariantService,
         private globalSettingsService: GlobalSettingsService,
-    ) {}
+    ) {
+    }
 
     /**
      * Retrieves channels with their related Seller and StockLocations,
@@ -85,7 +86,7 @@ export class VendorSelectionService {
 
                 // Fetch the variant for this channel
                 const variantRepo = this.connection.getRepository(channelCtx, ProductVariant);
-                const variant = await variantRepo.findOne({ where: { id: productId } });
+                const variant = await variantRepo.findOne({where: {id: productId}});
                 this.logger.debug(`Channel ${channel.id}: variant ${variant ? 'found' : 'not found'}`);
 
                 // Determine the single assigned stockLocationId for this channel
@@ -109,7 +110,7 @@ export class VendorSelectionService {
                     });
                     this.logger.debug(`Channel ${channel.id}: fetched ${stockLevels.length} stockLevels`);
 
-                    const totalOnHand    = stockLevels.reduce((sum, sl) => sum + sl.stockOnHand, 0);
+                    const totalOnHand = stockLevels.reduce((sum, sl) => sum + sl.stockOnHand, 0);
                     const totalAllocated = stockLevels.reduce((sum, sl) => sum + sl.stockAllocated, 0);
                     const threshold = variant.useGlobalOutOfStockThreshold
                         ? settings.outOfStockThreshold
@@ -180,12 +181,12 @@ export class VendorSelectionService {
         }
         try {
             const response = await axios.get('https://nominatim.openstreetmap.org/search', {
-                params: { postalcode: postalCode, country, format: 'json', addressdetails: 0, limit: 1 },
-                headers: { 'User-Agent': 'VendureVendorSelection/1.0' },
+                params: {postalcode: postalCode, country, format: 'json', addressdetails: 0, limit: 1},
+                headers: {'User-Agent': 'VendureVendorSelection/1.0'},
             });
             const data = response.data;
             if (data?.length) {
-                const result = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+                const result = {lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon)};
                 this.geocodeCache.set(key, result);
                 return result;
             }
@@ -284,20 +285,28 @@ export class VendorSelectionService {
         let customerCountry: string | undefined;
         if (customer?.customFields) {
             customerPostalCode = customer.customFields.postalCode ?? undefined;
-            customerCountry   = customer.customFields.country ?? undefined;
+            customerCountry = customer.customFields.country ?? undefined;
         }
         this.logger.debug(`Customer postalCode/country from profile: ${customerPostalCode}/${customerCountry}`);
+
         if (!customerPostalCode || !customerCountry) {
-            customerPostalCode = vendors[0]?.seller?.postalCode;
-            customerCountry   = vendors[0]?.seller?.country;
-            this.logger.debug(`Falling back to first vendor for postalCode/country: ${customerPostalCode}/${customerCountry}`);
+            // fallback op eerste vendor, null wordt undefined
+            customerPostalCode = vendors[0]?.seller?.postalCode ?? undefined;
+            customerCountry = vendors[0]?.seller?.country ?? undefined;
+            this.logger.debug(
+                `Falling back to first vendor for postalCode/country: ` +
+                `${customerPostalCode}/${customerCountry}`
+            );
         }
 
         let available = vendors.filter(v => v.inStock);
         this.logger.debug(`Step filter: inStock => ${available.length} vendors`);
+
         if (!customer) {
             available = available.filter(v => v.locales.includes(queryLang));
-            this.logger.debug(`Step filter: locales include ${queryLang} => ${available.length} vendors`);
+            this.logger.debug(
+                `Step filter: locales include ${queryLang} => ${available.length} vendors`
+            );
         }
 
         // 1. BOARDRUSH_PLATFORM
@@ -311,7 +320,9 @@ export class VendorSelectionService {
         if (customer?.customFields?.preferredSeller) {
             const pid = String(customer.customFields.preferredSeller.id);
             sel = available.find(v => v.sellerId === pid);
-            this.logger.debug(`Step 2 preferredSeller.id=${pid} result: ${sel ? sel.sellerId : 'none'}`);
+            this.logger.debug(
+                `Step 2 preferredSeller.id=${pid} result: ${sel ? sel.sellerId : 'none'}`
+            );
             if (sel) return sel;
         } else {
             this.logger.debug('Step 2: No preferredSeller defined');
@@ -326,7 +337,9 @@ export class VendorSelectionService {
         this.logger.debug(`Step 3: Domestic count=${domestic.length}`);
         if (domestic.length) {
             domestic.sort((a, b) => a.price - b.price);
-            this.logger.debug(`Step 3: Selected ${domestic[0].sellerId} at price ${domestic[0].price}`);
+            this.logger.debug(
+                `Step 3: Selected ${domestic[0].sellerId} at price ${domestic[0].price}`
+            );
             return domestic[0];
         }
 
@@ -339,7 +352,9 @@ export class VendorSelectionService {
         this.logger.debug(`Step 4: Manufacturers with dealer count=${manuWithDealer.length}`);
         for (const m of manuWithDealer) {
             sel = available.find(v => v.sellerId === m.seller!.merkDealer!.id);
-            this.logger.debug(`Checking merkDealer.id=${m.seller!.merkDealer!.id} => ${sel ? 'found' : 'none'}`);
+            this.logger.debug(
+                `Checking merkDealer.id=${m.seller!.merkDealer!.id} => ${sel ? 'found' : 'none'}`
+            );
             if (sel) {
                 this.logger.debug(`Step 4 result: ${sel.sellerId}`);
                 return sel;
@@ -368,7 +383,9 @@ export class VendorSelectionService {
         this.logger.debug(`Step 6: Manufacturers with distrib count=${manuWithDistrib.length}`);
         for (const m of manuWithDistrib) {
             sel = available.find(v => v.sellerId === m.seller!.merkDistributeur!.id);
-            this.logger.debug(`Checking merkDistributeur.id=${m.seller!.merkDistributeur!.id} => ${sel ? 'found' : 'none'}`);
+            this.logger.debug(
+                `Checking merkDistributeur.id=${m.seller!.merkDistributeur!.id} => ${sel ? 'found' : 'none'}`
+            );
             if (sel) {
                 this.logger.debug(`Step 6 result: ${sel.sellerId}`);
                 return sel;
