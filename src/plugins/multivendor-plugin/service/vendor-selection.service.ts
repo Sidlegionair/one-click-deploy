@@ -7,11 +7,13 @@ import {
     CustomerService,
     ProductVariantService,
     ProductVariant,
+    GlobalSettingsService,
+    StockLevel,
     LanguageCode,
 } from '@vendure/core';
 import axios from 'axios';
 
-// For default, we assume stock location id "1" and seller id "1"
+// For the default channel, assume stock location id "1" and seller id "1"
 const DEFAULT_STOCK_LOCATION_ID = '1';
 const DEFAULT_SELLER_ID = '1';
 
@@ -48,11 +50,13 @@ export class VendorSelectionService {
         private connection: TransactionalConnection,
         private customerService: CustomerService,
         private productVariantService: ProductVariantService,
+        private globalSettingsService: GlobalSettingsService,
     ) {}
 
     /**
      * Retrieves channels with their related Seller and StockLocations,
-     * and queries the actual ProductVariant data for each channel.
+     * and computes for each the actual price and saleable stock
+     * for the assigned stock location.
      */
     async getVendors(ctx: RequestContext, productId: string): Promise<Vendor[]> {
         const channelRepo = this.connection.getRepository(ctx, Channel);
@@ -61,8 +65,12 @@ export class VendorSelectionService {
             take: 100,
         });
 
+        // Load global settings once for threshold lookup
+        const settings = await this.globalSettingsService.getSettings(ctx);
+
         const vendors: Vendor[] = await Promise.all(
             channels.map(async channel => {
+                // Create a channel-specific RequestContext
                 const channelCtx = new RequestContext({
                     channel,
                     apiType: ctx.apiType,
@@ -72,11 +80,11 @@ export class VendorSelectionService {
                     isAuthorized: true,
                 });
 
-                // Haal de variant
+                // Fetch the variant for this channel
                 const variantRepo = this.connection.getRepository(channelCtx, ProductVariant);
                 const variant = await variantRepo.findOne({ where: { id: productId } });
 
-                // Bepaal stocklocation id (cast ID naar string)
+                // Determine the single assigned stockLocationId for this channel
                 let assignedStockLocationId: string | undefined;
                 if (String(channel.id) === DEFAULT_STOCK_LOCATION_ID) {
                     assignedStockLocationId = DEFAULT_STOCK_LOCATION_ID;
@@ -84,16 +92,28 @@ export class VendorSelectionService {
                     assignedStockLocationId = String(channel.stockLocations[0].id);
                 }
 
-                // Gebruik Vendure’s saleable stock-level (threshold + allocations)
+                // Calculate saleable stock manually: stockOnHand - stockAllocated - threshold
                 let inStock = false;
-                if (variant) {
-                    const saleable = await this.productVariantService.getSaleableStockLevel(
-                        channelCtx,
-                        variant,
-                    );
+                if (variant && assignedStockLocationId) {
+                    const stockLevelRepo = this.connection.getRepository(channelCtx, StockLevel);
+                    const stockLevels = await stockLevelRepo.find({
+                        where: {
+                            productVariantId: productId,
+                            stockLocationId: assignedStockLocationId,
+                        },
+                    });
+
+                    const totalOnHand    = stockLevels.reduce((sum, sl) => sum + sl.stockOnHand, 0);
+                    const totalAllocated = stockLevels.reduce((sum, sl) => sum + sl.stockAllocated, 0);
+                    const threshold = variant.useGlobalOutOfStockThreshold
+                        ? settings.outOfStockThreshold
+                        : variant.outOfStockThreshold ?? 0;
+
+                    const saleable = totalOnHand - totalAllocated - threshold;
                     inStock = saleable > 0;
                 }
 
+                // Determine price (channel-specific or fallback)
                 const price = variant ? variant.price : 0;
 
                 return {
@@ -125,6 +145,7 @@ export class VendorSelectionService {
         return vendors;
     }
 
+    // Retrieves the authenticated customer if available
     private async getAuthenticatedCustomer(ctx: RequestContext): Promise<any | undefined> {
         if (ctx.session && ctx.session.user) {
             return this.customerService.findOneByUserId(ctx, ctx.session.user.id);
@@ -132,6 +153,10 @@ export class VendorSelectionService {
         return undefined;
     }
 
+    /**
+     * Geocodes a postal code and country using OpenStreetMap's Nominatim API.
+     * Caches results to avoid repeated requests.
+     */
     private async geocode(postalCode: string, country: string): Promise<{ lat: number; lng: number } | null> {
         const key = `${postalCode},${country}`;
         if (this.geocodeCache.has(key)) {
@@ -154,6 +179,9 @@ export class VendorSelectionService {
         return null;
     }
 
+    /**
+     * Computes the Haversine distance (in km) between two geo-coordinates.
+     */
     private haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
         const toRad = (deg: number) => deg * (Math.PI / 180);
         const R = 6371;
@@ -166,6 +194,9 @@ export class VendorSelectionService {
         return R * c;
     }
 
+    /**
+     * Returns the distance (in km) between a vendor and the customer.
+     */
     private async getDistance(vendor: Vendor, customerPostalCode: string, customerCountry: string): Promise<number> {
         if (!vendor.seller?.postalCode || !vendor.seller?.country) {
             return Number.MAX_SAFE_INTEGER;
@@ -189,6 +220,9 @@ export class VendorSelectionService {
         );
     }
 
+    /**
+     * Returns the vendor that is closest (by distance) to the customer.
+     */
     private async getClosestVendor(
         vendors: Vendor[],
         customerPostalCode: string,
@@ -206,6 +240,17 @@ export class VendorSelectionService {
         return closest;
     }
 
+    /**
+     * Implements the eight-step supplier selection hierarchy:
+     * 1. BOARDRUSH_PLATFORM
+     * 2. Customer’s Preferred Shop
+     * 3. Lowest Price Within Country
+     * 4. MERK Dealer by Postal Code
+     * 5. Non-MERK Dealer Nearby
+     * 6. MERK Distributeur
+     * 7. MERK Manufacturer
+     * 8. International fallback
+     */
     async selectVendorForVariation(
         ctx: RequestContext,
         productId: string,
@@ -230,18 +275,18 @@ export class VendorSelectionService {
             available = available.filter(v => v.locales.includes(queryLang));
         }
 
-        // 1. Boardrush
+        // 1. BOARDRUSH_PLATFORM
         let sel = available.find(v => v.seller?.vendorType === 'BOARDRUSH_PLATFORM');
         if (sel) return sel;
 
-        // 2. Klant’s preferred
+        // 2. Customer’s Preferred Shop
         if (customer?.customFields?.preferredSeller) {
             const pid = String(customer.customFields.preferredSeller.id);
             sel = available.find(v => v.sellerId === pid);
             if (sel) return sel;
         }
 
-        // 3. Laagste prijs domestic
+        // 3. Lowest Price Within Country
         const domestic = available.filter(v =>
             v.seller?.country === customerCountry &&
             v.seller?.vendorType === 'PHYSICAL_STORE_OR_SERVICE_DEALER'
@@ -251,7 +296,7 @@ export class VendorSelectionService {
             return domestic[0];
         }
 
-        // 4. MERK Dealer via postcode
+        // 4. MERK Dealer by Postal Code
         const manuWithDealer = available.filter(v =>
             v.seller?.vendorType === 'MANUFACTURER' &&
             v.seller?.merkDealer?.id
@@ -261,7 +306,7 @@ export class VendorSelectionService {
             if (sel) return sel;
         }
 
-        // 5. NIET-MERK Dealer dichtbij
+        // 5. Non-MERK Dealer Nearby
         const nonAttached = available.filter(v =>
             v.seller?.country === customerCountry &&
             v.seller?.vendorType === 'PHYSICAL_STORE_OR_SERVICE_DEALER'
@@ -283,11 +328,11 @@ export class VendorSelectionService {
         const agents = available.filter(v => v.seller?.vendorType === 'AGENT');
         if (agents.length) return agents[0];
 
-        // 7. MERK Fabriek
+        // 7. MERK Manufacturer
         const makers = available.filter(v => v.seller?.vendorType === 'MANUFACTURER');
         if (makers.length) return makers[0];
 
-        // 8. Internationaal fallback
+        // 8. International fallback
         if (available.length && customerPostalCode && customerCountry) {
             return this.getClosestVendor(available, customerPostalCode, customerCountry);
         }
