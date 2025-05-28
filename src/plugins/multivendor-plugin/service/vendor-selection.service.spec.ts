@@ -37,8 +37,8 @@ const mockChannels = [
         country: 'NL',
         vendorType: 'MANUFACTURER',
         merkDealers: [
-          { id: '2' },
-          { id: '3' }
+          { id: '2', name: 'Dealer 1', customFields: {} },
+          { id: '3', name: 'Dealer 2', customFields: {} }
         ],
         merkDistributeur: null
       }
@@ -354,7 +354,8 @@ describe('VendorSelectionService', () => {
 
       // Mock the getDistance method to make Dealer 1 closer
       jest.spyOn(service as any, 'getDistance').mockImplementation(
-        (vendor: Vendor) => {
+        (...args: unknown[]) => {
+          const vendor = args[0] as Vendor;
           if (vendor.sellerId === '2') return Promise.resolve(10);
           return Promise.resolve(100);
         }

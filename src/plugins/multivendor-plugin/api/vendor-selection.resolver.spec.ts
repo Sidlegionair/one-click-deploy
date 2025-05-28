@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { VendorSelectionResolver, ServiceLocationResult } from './vendor-selection.resolver';
 import { VendorSelectionService, Vendor } from '../service/vendor-selection.service';
-import { RequestContext } from '@vendure/core';
+import { RequestContext, LanguageCode } from '@vendure/core';
 
 describe('VendorSelectionResolver', () => {
   let resolver: VendorSelectionResolver;
@@ -25,9 +25,9 @@ describe('VendorSelectionResolver', () => {
   describe('getServiceLocationForProduct', () => {
     it('should return null if no vendor is found', async () => {
       mockVendorSelectionService.selectVendorForVariation.mockResolvedValue(undefined);
-      
+
       const result = await resolver.getServiceLocationForProduct({} as RequestContext, '123');
-      
+
       expect(result).toBeNull();
     });
 
@@ -35,8 +35,8 @@ describe('VendorSelectionResolver', () => {
       const mockVendor: Vendor = {
         slug: 'physical-store',
         channel: 'store-channel',
-        locales: ['en'],
-        nationalLocale: 'en',
+        locales: [LanguageCode.en],
+        nationalLocale: LanguageCode.en,
         sellerId: '1',
         seller: {
           name: 'Physical Store',
@@ -51,11 +51,11 @@ describe('VendorSelectionResolver', () => {
         price: 100,
         inStock: true,
       };
-      
+
       mockVendorSelectionService.selectVendorForVariation.mockResolvedValue(mockVendor);
-      
+
       const result = await resolver.getServiceLocationForProduct({} as RequestContext, '123');
-      
+
       expect(result).not.toBeNull();
       expect(result?.serviceAgentAvailable).toBe(false);
       expect(result?.scenario).toBe('Product besteld bij een WINKEL');
@@ -68,8 +68,8 @@ describe('VendorSelectionResolver', () => {
       const mockVendor: Vendor = {
         slug: 'manufacturer',
         channel: 'manufacturer-channel',
-        locales: ['en'],
-        nationalLocale: 'en',
+        locales: [LanguageCode.en],
+        nationalLocale: LanguageCode.en,
         sellerId: '2',
         seller: {
           name: 'Manufacturer',
@@ -99,11 +99,11 @@ describe('VendorSelectionResolver', () => {
         price: 200,
         inStock: true,
       };
-      
+
       mockVendorSelectionService.selectVendorForVariation.mockResolvedValue(mockVendor);
-      
+
       const result = await resolver.getServiceLocationForProduct({} as RequestContext, '123');
-      
+
       expect(result).not.toBeNull();
       expect(result?.serviceAgentAvailable).toBe(true);
       expect(result?.scenario).toBe('Product besteld bij een MERK met SERVICE_AGENT, service door dealer die merk al verkoopt');
@@ -116,8 +116,8 @@ describe('VendorSelectionResolver', () => {
       const mockVendor: Vendor = {
         slug: 'boardrush',
         channel: 'boardrush-channel',
-        locales: ['en'],
-        nationalLocale: 'en',
+        locales: [LanguageCode.en],
+        nationalLocale: LanguageCode.en,
         sellerId: '4',
         seller: {
           name: 'Boardrush',
@@ -132,11 +132,11 @@ describe('VendorSelectionResolver', () => {
         price: 300,
         inStock: true,
       };
-      
+
       mockVendorSelectionService.selectVendorForVariation.mockResolvedValue(mockVendor);
-      
+
       const result = await resolver.getServiceLocationForProduct({} as RequestContext, '123');
-      
+
       expect(result).not.toBeNull();
       expect(result?.serviceAgentAvailable).toBe(false);
       expect(result?.scenario).toBe('Product besteld bij BOARDRUSH zelf');

@@ -11,7 +11,8 @@ import {
   RequestContext, 
   TransactionalConnection,
   Channel,
-  ProductVariant
+  ProductVariant,
+  LanguageCode
 } from '@vendure/core';
 import { MULTIVENDOR_PLUGIN_OPTIONS } from '../constants';
 import { VendorSelectionService, Vendor } from '../service/vendor-selection.service';
@@ -20,7 +21,7 @@ describe('MultivendorSellerStrategy', () => {
   let strategy: MultivendorSellerStrategy;
   let mockInjector: Injector;
   let mockVendorSelectionService: jest.Mocked<VendorSelectionService>;
-  
+
   // Mock dependencies
   const mockEntityHydrator = {
     hydrate: jest.fn().mockImplementation((ctx, entity, options) => {
@@ -34,11 +35,11 @@ describe('MultivendorSellerStrategy', () => {
       return Promise.resolve(entity);
     }),
   };
-  
+
   const mockChannelService = {
     getDefaultChannel: jest.fn().mockResolvedValue({ id: '1', token: 'default-channel' }),
   };
-  
+
   const mockPaymentService = {};
   const mockPaymentMethodService = {};
   const mockConnection = {
@@ -51,9 +52,9 @@ describe('MultivendorSellerStrategy', () => {
       }),
     },
   };
-  
+
   const mockOrderService = {};
-  
+
   const mockOptions = {
     platformFeePercent: 10,
     platformFeeSKU: 'FEE',
@@ -158,7 +159,7 @@ describe('MultivendorSellerStrategy', () => {
         slug: 'seller-channel-2',
         channel: 'seller-2',
         locales: [],
-        nationalLocale: 'en',
+        nationalLocale: LanguageCode.en,
         sellerId: '3',
         seller: {
           name: 'Seller 2',
@@ -210,7 +211,7 @@ describe('MultivendorSellerStrategy', () => {
         slug: 'non-existent-channel',
         channel: 'non-existent',
         locales: [],
-        nationalLocale: 'en',
+        nationalLocale: LanguageCode.en,
         sellerId: '4',
         seller: {
           name: 'Non-existent Seller',
