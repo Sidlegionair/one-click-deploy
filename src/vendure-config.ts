@@ -20,6 +20,7 @@ import {SendcloudPlugin} from "@pinelab/vendure-plugin-sendcloud";
 import {compileUiExtensions} from "@vendure/ui-devkit/compiler"; // Import the Express Application type
 import { ResendEmailSender } from './config/resend-email-sender';
 import { KlaviyoPlugin } from '@pinelab/vendure-plugin-klaviyo';
+import {mvPaymentSettledHandler} from "./plugins/multivendor-plugin/klaviyo/mv-payment-settled-handler";
 
 const IS_DEV = process.env.APP_ENV === 'dev' || false;
 const KLAVIYO_API_KEY = process.env.KLAVIYO_API_KEY || '';
@@ -131,6 +132,7 @@ export const config: VendureConfig = {
         }),
         KlaviyoPlugin.init({
             apiKey: KLAVIYO_API_KEY,
+            eventHandlers: [mvPaymentSettledHandler],
         }),
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
         DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),

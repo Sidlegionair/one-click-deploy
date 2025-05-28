@@ -17,6 +17,12 @@ export const shopApiExtensions = gql`
         nationalLocale: String!
     }
 
+    type ServiceLocationResult {
+        serviceDealer: VendorSelectionResult
+        serviceAgentAvailable: Boolean!
+        scenario: String!
+    }
+
     input CreateSellerInput {
         firstName: String!
         lastName: String!
@@ -29,11 +35,16 @@ export const shopApiExtensions = gql`
         seller: CreateSellerInput!
     }
 
+    extend input UpdateCustomerInput {
+        emailAddress: String
+    }
+
     extend type Mutation {
         registerNewSeller(input: RegisterSellerInput!): Channel
     }
-    
+
     extend type Query {
         selectVendorForVariation(productId: String!): VendorSelectionResult
+        getServiceLocationForProduct(productId: String!): ServiceLocationResult
     }
 `;

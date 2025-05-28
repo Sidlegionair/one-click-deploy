@@ -23,6 +23,7 @@ import {
 
 import { CONNECTED_PAYMENT_METHOD_CODE, MULTIVENDOR_PLUGIN_OPTIONS } from '../constants';
 import { MultivendorPluginOptions } from '../types';
+import { VendorSelectionService } from '../service/vendor-selection.service';
 
 
 /**
@@ -38,6 +39,7 @@ export class MultivendorSellerStrategy implements OrderSellerStrategy {
     private connection: TransactionalConnection;
     private orderService: OrderService;
     private options: MultivendorPluginOptions;
+    private vendorSelectionService: VendorSelectionService;
 
     /**
      * Initializes the services and options needed for the strategy.
@@ -58,6 +60,8 @@ export class MultivendorSellerStrategy implements OrderSellerStrategy {
         console.log('[init] OrderService initialized.');
         this.options = injector.get(MULTIVENDOR_PLUGIN_OPTIONS);
         console.log('[init] MultivendorPluginOptions initialized.');
+        this.vendorSelectionService = injector.get(VendorSelectionService);
+        console.log('[init] VendorSelectionService initialized.');
     }
 
     /**
@@ -71,13 +75,18 @@ export class MultivendorSellerStrategy implements OrderSellerStrategy {
      */
     async setOrderLineSellerChannel(ctx: RequestContext, orderLine: OrderLine): Promise<Channel | undefined> {
         console.log('[setOrderLineSellerChannel] Processing order line:', orderLine.id);
-        // Ensure the productVariant is hydrated with its channels.
+
+        // Check if a specific seller channel was requested via customFields
+        const requestedSellerChannel = orderLine.customFields?.requestedSellerChannel;
+        console.log('[setOrderLineSellerChannel] Requested seller channel:', requestedSellerChannel);
+
+        // Ensure the productVariant is hydrated with its channels
         await this.entityHydrator.hydrate(ctx, orderLine.productVariant, { relations: ['channels'] });
         console.log('[setOrderLineSellerChannel] Hydrated productVariant channels:', orderLine.productVariant.channels);
         const defaultChannel = await this.channelService.getDefaultChannel();
         console.log('[setOrderLineSellerChannel] Default channel:', defaultChannel);
 
-        // Filter out the default channel.
+        // Filter out the default channel
         const sellerChannels = orderLine.productVariant.channels.filter(
             c => !idsAreEqual(c.id, defaultChannel.id)
         );
@@ -88,24 +97,41 @@ export class MultivendorSellerStrategy implements OrderSellerStrategy {
             return undefined;
         }
 
+        // If a specific seller channel was requested and it exists, use it
+        if (requestedSellerChannel) {
+            const selectedChannel = sellerChannels.find(c => c.token === requestedSellerChannel);
+            if (selectedChannel) {
+                console.log('[setOrderLineSellerChannel] Using requested seller channel:', selectedChannel);
+                return selectedChannel;
+            }
+            console.warn('[setOrderLineSellerChannel] Requested seller channel not found among available channels.');
+        }
+
+        // If there's only one seller channel, use it
         if (sellerChannels.length === 1) {
-            console.log('[setOrderLineSellerChannel] One seller channel found. Using it.');
+            console.log('[setOrderLineSellerChannel] Only one seller channel available. Using it.');
             return sellerChannels[0];
         }
 
-        // When more than one seller channel exists, check if a specific seller channel was provided via customFields.
-        const providedSellerChannelId = orderLine.customFields?.requestedSellerChannel;
-        console.log('[setOrderLineSellerChannel] Provided seller channel id:', providedSellerChannelId);
+        // Use VendorSelectionService to select the best vendor based on the same algorithm used in the frontend
+        try {
+            console.log('[setOrderLineSellerChannel] Using VendorSelectionService to select best vendor');
+            const selectedVendor = await this.vendorSelectionService.selectVendorForVariation(ctx, String(orderLine.productVariant.id));
+            console.log('[setOrderLineSellerChannel] Selected vendor:', selectedVendor);
 
-        if (providedSellerChannelId) {
-            const selectedChannel = sellerChannels.find(c => c.token == providedSellerChannelId);
+            // Find the channel that corresponds to the selected vendor
+            const selectedChannel = sellerChannels.find(c => c.token === selectedVendor.slug);
             if (selectedChannel) {
-                console.log('[setOrderLineSellerChannel] Selected channel based on provided id:', selectedChannel);
+                console.log('[setOrderLineSellerChannel] Found matching channel for selected vendor:', selectedChannel);
                 return selectedChannel;
             }
-            console.warn('[setOrderLineSellerChannel] Provided seller channel id did not match any available channels.');
+            console.warn('[setOrderLineSellerChannel] No matching channel found for selected vendor. Falling back to first available channel.');
+        } catch (error) {
+            console.error('[setOrderLineSellerChannel] Error using VendorSelectionService:', error);
+            console.warn('[setOrderLineSellerChannel] Falling back to first available channel due to error.');
         }
 
+        // Fallback to the first available seller channel
         console.log('[setOrderLineSellerChannel] Falling back to the first available seller channel.');
         return sellerChannels[0];
     }
@@ -256,26 +282,95 @@ export class MultivendorSellerStrategy implements OrderSellerStrategy {
             serviceAgentAvailable = false;
             console.log('[applyCustomOrderFields] Vendor type PHYSICAL_STORE_OR_SERVICE_DEALER detected.');
         } else if (vendorType === 'MANUFACTURER') {
+            // Determine if this manufacturer has a service agent available
+            // For this implementation, we'll consider AGENT vendor type as having a service agent
+            // This could be modified based on actual business logic
+            serviceAgentAvailable = true; // Set to true for scenarios 3, 5, and 10
+
             // For a manufacturer, attempt to set the service dealer from the attached fields.
-            if (seller.customFields?.merkDealer) {
-                serviceDealer = seller.customFields.merkDealer;
-                scenario = "Product besteld bij een MERK zonder SERVICE_AGENT, service door dealer die merk al verkoopt";
-                console.log('[applyCustomOrderFields] Manufacturer with merkDealer found.');
+            if (seller.customFields?.merkDealers && seller.customFields.merkDealers.length > 0) {
+                // Select the most appropriate merkDealer based on customer location or other criteria
+                // For now, we'll use a simple approach to find a dealer in the same country as the order
+                // or fall back to the first dealer if none match
+                const orderCountry = order.shippingAddress?.countryCode;
+                let selectedDealer = seller.customFields.merkDealers[0]; // Default to first dealer
+
+                if (orderCountry) {
+                    // Try to find a dealer in the same country as the order
+                    const localDealer = seller.customFields.merkDealers.find(
+                        dealer => dealer.customFields?.country === orderCountry
+                    );
+                    if (localDealer) {
+                        selectedDealer = localDealer;
+                        console.log(`[applyCustomOrderFields] Found dealer in same country (${orderCountry})`);
+                    }
+                }
+
+                serviceDealer = selectedDealer;
+                if (serviceAgentAvailable) {
+                    scenario = "Product besteld bij een MERK met SERVICE_AGENT, service door dealer die merk al verkoopt";
+                    console.log('[applyCustomOrderFields] Manufacturer with SERVICE_AGENT and merkDealers found.');
+                } else {
+                    scenario = "Product besteld bij een MERK zonder SERVICE_AGENT, service door dealer die merk al verkoopt";
+                    console.log('[applyCustomOrderFields] Manufacturer with merkDealers found.');
+                }
             } else if (seller.customFields?.merkDistributeur) {
                 serviceDealer = seller.customFields.merkDistributeur;
-                scenario = "Product besteld bij een MERK zonder SERVICE_AGENT, service door dealer die merk nog niet verkoopt";
-                console.log('[applyCustomOrderFields] Manufacturer with merkDistributeur found.');
+                if (serviceAgentAvailable) {
+                    scenario = "Product besteld bij een MERK met SERVICE_AGENT, service door dealer die merk nog niet verkoopt";
+                    console.log('[applyCustomOrderFields] Manufacturer with SERVICE_AGENT and merkDistributeur found.');
+                } else {
+                    scenario = "Product besteld bij een MERK zonder SERVICE_AGENT, service door dealer die merk nog niet verkoopt";
+                    console.log('[applyCustomOrderFields] Manufacturer with merkDistributeur found.');
+                }
             } else {
-                scenario = "Product besteld bij een MERK zonder beschikbare SERVICE_DEALER";
-                console.log('[applyCustomOrderFields] Manufacturer without service dealer found.');
+                if (serviceAgentAvailable) {
+                    scenario = "Product besteld bij een MERK met SERVICE_AGENT, maar geen beschikbare SERVICE_DEALER";
+                    console.log('[applyCustomOrderFields] Manufacturer with SERVICE_AGENT but without service dealer found.');
+                } else {
+                    scenario = "Product besteld bij een MERK zonder beschikbare SERVICE_DEALER";
+                    console.log('[applyCustomOrderFields] Manufacturer without service dealer found.');
+                }
             }
-            serviceAgentAvailable = false;
         } else if (vendorType === 'BOARDRUSH_PLATFORM') {
-            // When Boardrush is the seller, there is no service dealer.
-            scenario = "Product besteld bij BOARDRUSH zelf";
-            serviceDealer = null;
-            serviceAgentAvailable = false;
-            console.log('[applyCustomOrderFields] Vendor type BOARDRUSH_PLATFORM detected.');
+            // For BOARDRUSH_PLATFORM, check if there's a service dealer
+            serviceAgentAvailable = false; // Not applicable for BOARDRUSH_PLATFORM
+
+            // Check if we can find a service dealer for this product
+            // This would typically involve checking product brand against available dealers
+            // For simplicity, we'll use merkDealers if available
+            if (seller.customFields?.merkDealers && seller.customFields.merkDealers.length > 0) {
+                // Select the most appropriate merkDealer based on customer location or other criteria
+                // For now, we'll use a simple approach to find a dealer in the same country as the order
+                // or fall back to the first dealer if none match
+                const orderCountry = order.shippingAddress?.countryCode;
+                let selectedDealer = seller.customFields.merkDealers[0]; // Default to first dealer
+
+                if (orderCountry) {
+                    // Try to find a dealer in the same country as the order
+                    const localDealer = seller.customFields.merkDealers.find(
+                        dealer => dealer.customFields?.country === orderCountry
+                    );
+                    if (localDealer) {
+                        selectedDealer = localDealer;
+                        console.log(`[applyCustomOrderFields] Found dealer in same country (${orderCountry})`);
+                    }
+                }
+
+                serviceDealer = selectedDealer;
+                scenario = "Product besteld bij BOARDRUSH zelf, service door dealer die merk bevat";
+                console.log('[applyCustomOrderFields] BOARDRUSH_PLATFORM with service dealer that sells the brand.');
+            } else if (seller.customFields?.merkDistributeur) {
+                // Use merkDistributeur as service dealer
+                serviceDealer = seller.customFields.merkDistributeur;
+                scenario = "Product besteld bij BOARDRUSH zelf, service door dealer die merk niet bevat";
+                console.log('[applyCustomOrderFields] BOARDRUSH_PLATFORM with service dealer that does not sell the brand.');
+            } else {
+                // No service dealer available
+                scenario = "Product besteld bij BOARDRUSH zelf";
+                serviceDealer = null;
+                console.log('[applyCustomOrderFields] Vendor type BOARDRUSH_PLATFORM without service dealer detected.');
+            }
         } else {
             scenario = "Onbekend scenario";
             console.warn('[applyCustomOrderFields] Unknown vendor type:', vendorType);

@@ -76,29 +76,121 @@ export class MollieController {
             const mollieClient = createMollieClient({ apiKey: mollieApiKey });
             const molliePayment = await mollieClient.payments.get(paymentId);
 
-            if (molliePayment.status === 'paid') {
-                const ctx = await this.requestContextService.create({
-                    apiType: 'admin',
-                });
+            const ctx = await this.requestContextService.create({
+                apiType: 'admin',
+            });
 
-                // Find all Payment records with the matching transactionId
-                const paymentRecords = await this.connection.getRepository(ctx, Payment).find({
-                    where: { transactionId: paymentId },
-                    relations: ['order']
-                });
+            // Find all Payment records with the matching transactionId
+            const paymentRecords = await this.connection.getRepository(ctx, Payment).find({
+                where: { transactionId: paymentId },
+                relations: ['order']
+            });
 
-                if (paymentRecords && paymentRecords.length > 0) {
+            if (!paymentRecords || paymentRecords.length === 0) {
+                return res.status(404).send('No payment records found for transaction ID: ' + paymentId);
+            }
+
+            console.log(`Processing Mollie payment ${paymentId} with status: ${molliePayment.status}`);
+
+            // Handle different payment statuses
+            switch (molliePayment.status as string) {
+                case 'paid':
                     // Settle all found payments concurrently
                     await Promise.all(
                         paymentRecords.map(paymentRecord => this.paymentService.settlePayment(ctx, paymentRecord.id))
                     );
-                    return res.status(200).send('All matching payments settled successfully.');
-                } else {
-                    return res.status(404).send('No payment records found for transaction ID: ' + paymentId);
+                    console.log(`Settled ${paymentRecords.length} payment(s) for transaction ID: ${paymentId}`);
+                    break;
+
+                case 'canceled':
+                    // Cancel all found payments concurrently
+                    await Promise.all(
+                        paymentRecords.map(paymentRecord => this.paymentService.cancelPayment(ctx, paymentRecord.id))
+                    );
+                    console.log(`Canceled ${paymentRecords.length} payment(s) for transaction ID: ${paymentId}`);
+                    break;
+
+                case 'failed':
+                    // Mark payments as declined
+                    await Promise.all(
+                        paymentRecords.map(paymentRecord => this.paymentService.transitionToState(ctx, paymentRecord.id, 'Declined'))
+                    );
+                    console.log(`Marked ${paymentRecords.length} payment(s) as declined for transaction ID: ${paymentId}`);
+                    break;
+
+                case 'expired':
+                    // Mark payments as declined due to expiration
+                    await Promise.all(
+                        paymentRecords.map(paymentRecord => this.paymentService.transitionToState(ctx, paymentRecord.id, 'Declined'))
+                    );
+                    console.log(`Marked ${paymentRecords.length} expired payment(s) as declined for transaction ID: ${paymentId}`);
+                    break;
+
+                case 'refunded': {
+                    // Handle refunds - in Vendure, refunds are typically handled through the OrderService
+                    // This is a simplified approach
+                    for (const paymentRecord of paymentRecords) {
+                        if (paymentRecord.state === 'Settled') {
+                            await this.paymentService.createRefund(
+                                ctx,
+                                {
+                                    paymentId: paymentRecord.id,
+                                    reason: 'Refunded via Mollie webhook',
+                                    lines: [], // Empty array means full refund
+                                    shipping: 0,
+                                    adjustment: 0,
+                                },
+                                paymentRecord.order,
+                                paymentRecord
+                            );
+                        }
+                    }
+                    console.log(`Processed refund for ${paymentRecords.length} payment(s) with transaction ID: ${paymentId}`);
+                    break;
                 }
-            } else {
-                return res.status(200).send(`Payment status: ${molliePayment.status}`);
+
+                case 'pending':
+                    // Payment is pending, no action needed
+                    console.log(`Payment ${paymentId} is pending, no action needed`);
+                    break;
+
+                case 'authorized':
+                    // Payment is authorized but not captured yet
+                    // In Vendure, we can mark it as Authorized
+                    await Promise.all(
+                        paymentRecords.map(paymentRecord => this.paymentService.transitionToState(ctx, paymentRecord.id, 'Authorized'))
+                    );
+                    console.log(`Marked ${paymentRecords.length} payment(s) as authorized for transaction ID: ${paymentId}`);
+                    break;
+
+                case 'charged_back': {
+                    // Handle chargebacks - similar to refunds
+                    for (const paymentRecord of paymentRecords) {
+                        if (paymentRecord.state === 'Settled') {
+                            await this.paymentService.createRefund(
+                                ctx,
+                                {
+                                    paymentId: paymentRecord.id,
+                                    reason: 'Charged back via Mollie webhook',
+                                    lines: [], // Empty array means full refund
+                                    shipping: 0,
+                                    adjustment: 0,
+                                },
+                                paymentRecord.order,
+                                paymentRecord
+                            );
+                        }
+                    }
+                    console.log(`Processed chargeback for ${paymentRecords.length} payment(s) with transaction ID: ${paymentId}`);
+                    break;
+                }
+
+                default:
+                    console.log(`Unhandled Mollie payment status: ${molliePayment.status} for payment ${paymentId}`);
+                    break;
             }
+
+            return res.status(200).send(`Processed payment with status: ${molliePayment.status}`);
         } catch (error) {
             console.error('Error handling Mollie webhook:', error);
             return res.status(500).send('Error processing webhook.');

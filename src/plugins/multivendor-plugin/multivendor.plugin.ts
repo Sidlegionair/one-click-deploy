@@ -1071,15 +1071,16 @@ import {VendorSelectionService} from "./service/vendor-selection.service";
             ],
         },
         {
-            name: 'merkDealer',
-                label: [{ languageCode: LanguageCode.en, value: 'MERK Dealer' }],
-            description: [{ languageCode: LanguageCode.en, value: 'Attached MERK Dealer for the manufacturer' }],
+            name: 'merkDealers',
+            label: [{ languageCode: LanguageCode.en, value: 'MERK Dealers' }],
+            description: [{ languageCode: LanguageCode.en, value: 'Attached MERK Dealers for the manufacturer' }],
             type: 'relation',
             entity: Seller, // Make sure to import your Seller entity correctly
             public: true,
             nullable: true,
+            list: true, // This makes it a list relation that can hold multiple values
             ui: {
-                component: 'preferred-seller-input', // Should match the registered component name
+                component: 'preferred-seller-input', // Component for multiple selection
             },
         },
         {

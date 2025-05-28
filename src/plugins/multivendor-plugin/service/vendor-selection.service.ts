@@ -32,8 +32,8 @@ export interface Vendor {
         postalCode: string | null;
         country: string | null;
         vendorType: string | null;
-        merkDealer?: { id: string } | null;
-        merkDistributeur?: { id: string } | null;
+        merkDealers?: { id: string; name: string; customFields?: any }[] | null;
+        merkDistributeur?: { id: string; name: string; customFields?: any } | null;
     } | null;
     price: number;
     inStock: boolean;
@@ -61,7 +61,7 @@ export class VendorSelectionService {
         this.logger.debug(`getVendors: productId=${productId}`);
         const channelRepo = this.connection.getRepository(ctx, Channel);
         const channels = await channelRepo.find({
-            relations: ['seller', 'stockLocations'],
+            relations: ['seller', 'stockLocations', 'seller.customFields.merkDealers', 'seller.customFields.merkDistributeur'],
             take: 100,
         });
         this.logger.debug(`getVendors: fetched ${channels.length} channels`);
@@ -123,7 +123,7 @@ export class VendorSelectionService {
                             postalCode: channel.seller.customFields.postalCode || null,
                             country: channel.seller.customFields.country || null,
                             vendorType: channel.seller.customFields.vendorType || null,
-                            merkDealer: channel.seller.customFields.merkDealer || null,
+                            merkDealers: channel.seller.customFields.merkDealers || null,
                             merkDistributeur: channel.seller.customFields.merkDistributeur || null,
                         }
                         : null,
@@ -216,47 +216,61 @@ export class VendorSelectionService {
         let available = vendors.filter(v => v.inStock);
         if (!customer) available = available.filter(v => v.locales.includes(lang));
 
-        // 1. BOARDRUSH_PLATFORM
-        let sel = available.find(v => v.seller?.vendorType === 'BOARDRUSH_PLATFORM');
-        if (sel) return sel;
-
-        // 2. Customer’s Preferred Shop
+        // 1. Customer's Preferred Shop (Voorkeurswinkel van de klant)
         if (customer?.customFields?.preferredSeller) {
-            sel = available.find(v => v.sellerId === String(customer.customFields.preferredSeller.id));
+            let sel = available.find(v => v.sellerId === String(customer.customFields.preferredSeller.id));
             if (sel) return sel;
         }
 
-        // 3. Lowest price domestic
-        const domestic = available.filter(
+        // 2. Lowest price domestic (Prijs binnen landsgrenzen)
+        const domesticStores = available.filter(
             v => v.seller?.country === country && v.seller?.vendorType === 'PHYSICAL_STORE_OR_SERVICE_DEALER'
         );
-        if (domestic.length) return domestic.sort((a, b) => a.price - b.price)[0];
+        if (domesticStores.length) return domesticStores.sort((a, b) => a.price - b.price)[0];
 
-        // 4. MERK Dealer by Postal Code
-        sel = available.find(v =>
-            v.seller?.vendorType === 'MANUFACTURER' && v.seller.merkDealer?.id && available.some(x => x.sellerId === v.seller!.merkDealer!.id)
-        );
-        if (sel) return sel;
-
-        // 5. Nearby non-attached
-        const nonAttached = available.filter(
+        // 3. Selection based on postal code (Selectie op Basis van Postcode)
+        const domesticByPostcode = available.filter(
             v => v.seller?.country === country && v.seller?.vendorType === 'PHYSICAL_STORE_OR_SERVICE_DEALER'
         );
-        if (nonAttached.length) return await this.getClosestVendor(nonAttached, postalCode, country);
+        if (domesticByPostcode.length) return await this.getClosestVendor(domesticByPostcode, postalCode, country);
 
-        // 6. MERK Distributeur or Agent
-        sel = available.find(v =>
-            v.seller?.vendorType === 'MANUFACTURER' && v.seller.merkDistributeur?.id && available.some(x => x.sellerId === v.seller!.merkDistributeur!.id)
+        // 4. BOARDRUSH stock (BOARDRUSH Voorraad)
+        let sel = available.find(v => v.seller?.vendorType === 'BOARDRUSH_PLATFORM');
+        if (sel) return sel;
+
+        // 5. MERK Distributor in country (MERK Distributeur in Land)
+        // Check for manufacturers or agents in the same country
+        const domesticManufacturers = available.filter(
+            v => v.seller?.country === country && 
+                (v.seller?.vendorType === 'MANUFACTURER' || v.seller?.vendorType === 'AGENT')
+        );
+
+        // First try manufacturers with merkDealers
+        sel = domesticManufacturers.find(v => 
+            v.seller?.vendorType === 'MANUFACTURER' && 
+            v.seller.merkDealers?.length && 
+            v.seller.merkDealers.some(dealer => available.some(x => x.sellerId === dealer.id))
         );
         if (sel) return sel;
-        sel = available.find(v => v.seller?.vendorType === 'AGENT');
+
+        // Then try manufacturers with merkDistributeur
+        sel = domesticManufacturers.find(v =>
+            v.seller?.vendorType === 'MANUFACTURER' && 
+            v.seller.merkDistributeur?.id && 
+            available.some(x => x.sellerId === v.seller!.merkDistributeur!.id)
+        );
         if (sel) return sel;
 
-        // 7. Manufacturer
+        // Then try any agent
+        sel = domesticManufacturers.find(v => v.seller?.vendorType === 'AGENT');
+        if (sel) return sel;
+
+        // 6. MERK Factory (MERK Fabriek)
+        // Any manufacturer, regardless of country
         sel = available.find(v => v.seller?.vendorType === 'MANUFACTURER');
         if (sel) return sel;
 
-        // 8. International fallback
+        // 7. International selection based on postal code (Internationale Selectie op Basis van Postcode)
         return await this.getClosestVendor(available, postalCode, country);
     }
 }

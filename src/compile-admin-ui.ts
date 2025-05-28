@@ -8,6 +8,7 @@ compileUiExtensions({
     extensions: [
         MultivendorPlugin.ui,
     ],
+    devMode: true,
 })
     .compile?.()
     .then(() => {

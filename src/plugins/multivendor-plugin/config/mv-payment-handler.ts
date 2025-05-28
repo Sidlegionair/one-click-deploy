@@ -30,13 +30,43 @@ if (!mollieApiKey) {
  * For a manufacturer, it returns the merkDealer if set, otherwise the merkDistributeur.
  * For BOARDRUSH_PLATFORM, no service dealer is set.
  */
-function determineServiceDealer(seller: VendureSeller): VendureSeller | null {
+function determineServiceDealer(seller: VendureSeller, order?: Order): VendureSeller | null {
     const vendorType = seller.customFields?.vendorType;
     if (vendorType === 'PHYSICAL_STORE_OR_SERVICE_DEALER') {
         return null;
     } else if (vendorType === 'MANUFACTURER') {
-        if (seller.customFields?.merkDealer) {
-            return seller.customFields.merkDealer;
+        if (seller.customFields?.merkDealers && seller.customFields.merkDealers.length > 0) {
+            // Select the most appropriate merkDealer based on location
+            // If we have an order, try to find a dealer in the same country
+            const orderCountry = order?.shippingAddress?.countryCode;
+            const sellerCountry = seller.customFields?.country;
+
+            // Default to first dealer
+            let selectedDealer = seller.customFields.merkDealers[0];
+
+            // First try to match with order country if available
+            if (orderCountry) {
+                const localDealer = seller.customFields.merkDealers.find(
+                    dealer => dealer.customFields?.country === orderCountry
+                );
+                if (localDealer) {
+                    console.log(`[determineServiceDealer] Found dealer in same country as order (${orderCountry})`);
+                    return localDealer;
+                }
+            }
+
+            // If no match with order country, try to match with seller country
+            if (sellerCountry) {
+                const localDealer = seller.customFields.merkDealers.find(
+                    dealer => dealer.customFields?.country === sellerCountry
+                );
+                if (localDealer) {
+                    console.log(`[determineServiceDealer] Found dealer in same country as seller (${sellerCountry})`);
+                    return localDealer;
+                }
+            }
+
+            return selectedDealer;
         } else if (seller.customFields?.merkDistributeur) {
             return seller.customFields.merkDistributeur;
         } else {
@@ -62,7 +92,7 @@ function computeDynamicFeePercentagesForSeller(
     if (vendorType === 'PHYSICAL_STORE_OR_SERVICE_DEALER') {
         return { boardrush: 14, serviceDealer: 0, vendor: 86 };
     } else if (vendorType === 'MANUFACTURER') {
-        if (seller.customFields?.merkDealer) {
+        if (seller.customFields?.merkDealers && seller.customFields.merkDealers.length > 0) {
             return serviceAgentAvailable
                 ? { boardrush: 18, serviceDealer: 10, vendor: 72 }
                 : { boardrush: 23, serviceDealer: 10, vendor: 67 };
@@ -157,10 +187,28 @@ async function createAggregatePayment(
     console.log(`[createAggregatePayment] Service Dealer fee total EUR: ${totalServiceDealerAmount}`);
 
     // Only route external fees (vendor and service dealer). Boardrush fee remains in-house.
-    const finalRoutingArray = [
-        ...vendorRoutingArray,
-        ...serviceDealerRoutingArray,
-    ];
+    // Consolidate routes to the same organization to avoid Mollie error
+    const organizationMap = new Map<string, number>();
+
+    // Process vendor routing entries
+    for (const entry of vendorRoutingArray) {
+        const orgId = entry.destination.organizationId;
+        const amount = parseFloat(entry.amount.value);
+        organizationMap.set(orgId, (organizationMap.get(orgId) || 0) + amount);
+    }
+
+    // Process service dealer routing entries
+    for (const entry of serviceDealerRoutingArray) {
+        const orgId = entry.destination.organizationId;
+        const amount = parseFloat(entry.amount.value);
+        organizationMap.set(orgId, (organizationMap.get(orgId) || 0) + amount);
+    }
+
+    // Create consolidated routing array
+    const finalRoutingArray = Array.from(organizationMap.entries()).map(([orgId, amount]) => ({
+        amount: { value: amount.toFixed(2), currency: 'EUR' },
+        destination: { type: 'organization', organizationId: orgId }
+    }));
 
     console.log(`[createAggregatePayment] Final Routing Array: ${JSON.stringify(finalRoutingArray, null, 2)}`);
 
@@ -252,8 +300,8 @@ async function fetchSellerRoutingInfo(
     if (!sellerChannel.seller) {
         throw new Error(`Seller not found for seller channel ${sellerChannel.code}`);
     }
-    // Hydrate the seller's customFields for merkDealer and merkDistributeur.
-    await entityHydrator.hydrate(ctx, sellerChannel.seller, { relations: ['customFields.merkDealer', 'customFields.merkDistributeur'] });
+    // Hydrate the seller's customFields for merkDealers and merkDistributeur.
+    await entityHydrator.hydrate(ctx, sellerChannel.seller, { relations: ['customFields.merkDealers', 'customFields.merkDistributeur'] });
     const seller: VendureSeller = sellerChannel.seller;
     console.log(`[fetchSellerRoutingInfo] Seller ${seller.id} loaded for channel ${sellerChannel.code}`);
 
@@ -261,8 +309,9 @@ async function fetchSellerRoutingInfo(
     let percentages = computeDynamicFeePercentagesForSeller(seller, order);
     console.log(`[fetchSellerRoutingInfo] Initial computed percentages: ${JSON.stringify(percentages)}`);
 
-    // // Use the same logic as our strategy to determine the service dealer.
-    const serviceDealerSeller = determineServiceDealer(seller);
+    // Use the same logic as our strategy to determine the service dealer.
+    // Pass the order to help find a dealer in the same country as the order
+    const serviceDealerSeller = determineServiceDealer(seller, order);
     // if (serviceDealerSeller) {
     //     console.log(`[fetchSellerRoutingInfo] Service dealer determined from seller customFields: ${serviceDealerSeller.id}`);
     //     // Override percentages to enforce a service dealer fee.

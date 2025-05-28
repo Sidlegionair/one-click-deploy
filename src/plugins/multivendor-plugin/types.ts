@@ -1,5 +1,4 @@
-import {CustomOrderLineFields, Seller} from '@vendure/core';
-
+import { CustomOrderLineFields, Seller } from '@vendure/core';
 
 export interface MultivendorPluginOptions {
     platformFeePercent: number;
@@ -13,19 +12,21 @@ export interface CreateSellerInput {
     password: string;
 }
 
-// export interface Seller {
-//     id: string;
-//     createdAt: string;
-//     updatedAt: string;
-//     name: string;
-//     deletedAt?: Date | null;
-//     customFields?: {
-//         firstName?: string;
-//         [key: string]: any;
-//     };
-// }
-//
-//
+export interface UpdateSellerInput {
+    id: string;
+    name?: string;
+    customFields?: {
+        firstName?: string;
+        lastName?: string;
+        emailAddress?: string;
+        address?: string;
+        postalCode?: string;
+        country?: string;
+        vendorType?: string;
+        merkDealersIds?: string[];
+        merkDistributeurId?: string | null;
+    };
+}
 
 // Use Vendure's Seller type for our custom fields.
 declare module '@vendure/core' {
@@ -40,7 +41,7 @@ declare module '@vendure/core' {
         postalCode?: string;
         country?: string;
         vendorType?: string;
-        merkDealer?: Seller | null;
+        merkDealers?: Seller[] | null;
         merkDistributeur?: Seller | null;
     }
 
