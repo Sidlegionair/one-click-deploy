@@ -24,7 +24,7 @@ describe('VendorSelectionResolver', () => {
 
   describe('getServiceLocationForProduct', () => {
     it('should return null if no vendor is found', async () => {
-      mockVendorSelectionService.selectVendorForVariation.mockResolvedValue(undefined);
+      mockVendorSelectionService.selectVendorForVariation.mockResolvedValue(null as unknown as Vendor);
 
       const result = await resolver.getServiceLocationForProduct({} as RequestContext, '123');
 
