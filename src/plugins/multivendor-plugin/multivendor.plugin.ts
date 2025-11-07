@@ -1146,7 +1146,7 @@ import {VendorSelectionService} from "./service/vendor-selection.service";
         config.orderOptions.orderSellerStrategy = new MultivendorSellerStrategy();
         config.catalogOptions.productVariantPriceUpdateStrategy =
             new DefaultProductVariantPriceUpdateStrategy({
-                syncPricesAcrossChannels: true,
+                syncPricesAcrossChannels: false,
             });
         config.shippingOptions.shippingEligibilityCheckers.push(multivendorShippingEligibilityChecker);
         config.shippingOptions.shippingLineAssignmentStrategy =
